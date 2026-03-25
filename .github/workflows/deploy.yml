@@ -25,5 +25,6 @@ jobs:
             else
               git pull origin main
             fi
+            cd backend
             npm install
             pm2 restart all || pm2 start server.js --name "codefolio-api"
