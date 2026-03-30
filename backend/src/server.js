@@ -98,7 +98,7 @@ app.get("/api/me", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.send("Home");
+  res.send("Codefolio");
 });
 
 connectDB().then(
