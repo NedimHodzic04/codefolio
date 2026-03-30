@@ -4,6 +4,9 @@ import passport from "passport";
 import connectDB from "./config/db.js";
 import dotenv from "dotenv";
 import "./config/passport.js";
+import User from "./models/user.model.js";
+import MongoStore from "connect-mongo";
+import checkAuth from "./middleware/auth.js";
 const app = express();
 
 dotenv.config();
@@ -16,6 +19,15 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: { secure: false },
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URI,
+      collectionName: "sessions",
+    }),
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24,
+      httpOnly: true,
+      secure: false,
+    },
   }),
 );
 
@@ -46,6 +58,37 @@ app.get("/dashboard", (req, res) => {
   res.send("DASHBOARD");
 });
 
+app.post("/api/skills", checkAuth, async (req, res) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { $addToSet: { skills: req.body.skills } },
+      { new: true },
+    );
+
+    res.status(200).json({
+      message: "Skill added successfully!",
+      skills: updatedUser.skills,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error while adding skill" });
+  }
+});
+
+app.delete("/api/skills/:skillName", checkAuth, async (req, res) => {
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user._id,
+    { $pull: { skills: req.params.skillName } },
+    { new: true },
+  );
+
+  res.json({
+    message: `${req.params.skillName} removed`,
+    skills: updatedUser.skills,
+  });
+});
+
 app.get("/api/me", (req, res) => {
   if (req.user) {
     res.json(req.user);
@@ -55,7 +98,7 @@ app.get("/api/me", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.send("Welcome");
+  res.send("Home");
 });
 
 connectDB().then(
