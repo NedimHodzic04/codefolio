@@ -16,6 +16,7 @@ const UserSchema = new mongoose.Schema(
     },
     education: [{ type: mongoose.Schema.Types.ObjectId, ref: "Education" }],
     projects: [{ type: mongoose.Schema.Types.ObjectId, ref: "Project" }],
+    layoutTemplate: { type: String, default: "default" },
   },
   { timestamps: true },
 );

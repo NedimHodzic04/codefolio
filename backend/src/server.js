@@ -7,9 +7,12 @@ import "./config/passport.js";
 import User from "./models/user.model.js";
 import MongoStore from "connect-mongo";
 import checkAuth from "./middleware/auth.js";
+import cors from "cors";
 const app = express();
 
 dotenv.config();
+
+app.use(cors());
 
 const port = process.env.PORT || 5000;
 
@@ -98,7 +101,7 @@ app.get("/api/me", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.send("Codefolio");
+  res.json({message: "Codefolio"})
 });
 
 connectDB().then(
