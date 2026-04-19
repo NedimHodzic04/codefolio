@@ -20,7 +20,7 @@ export default function LoginPage() {
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <Button asChild className="w-full py-6 text-lg" variant="outline">
-            <a href="http://localhost:5000/api/auth/github/callback">
+            <a href={`${import.meta.env.VITE_API_URL}/auth/github`}>
               <GitHubLogoIcon className="mr-2 h-5 w-5" />
               Log In With GitHub
             </a>

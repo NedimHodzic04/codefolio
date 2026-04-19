@@ -1,6 +1,6 @@
-# CodeFolio — Developer Portfolio Portal
+# Codefolio — Developer Portfolio Portal
 
-CodeFolio is a multi-user web platform that allows developers to create a professional portfolio at a personal URL (`code-folio.app/username`) without the overhead of setting up or maintaining their own infrastructure.
+Codefolio is a multi-user web platform that allows developers to create a professional portfolio at a personal URL (`code-folio.app/username`) without the overhead of setting up or maintaining their own infrastructure.
 
 Upon signing in with GitHub, the platform automatically imports the user's public repository data to populate their profile. From there, users manage their content — bio, skills, projects, and education — through a private dashboard, and can choose from a selection of layout templates and themes to personalize how their portfolio looks.
 
