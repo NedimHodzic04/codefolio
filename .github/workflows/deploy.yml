@@ -23,6 +23,7 @@ jobs:
             if [ ! -d ".git" ]; then
               git clone https://github.com/NedimHodzic04/codefolio.git .
             else
+              git reset --hard origin/main
               git pull origin main
             fi
 
