@@ -16,7 +16,12 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  }),
+);
 
 const port = process.env.PORT || 5000;
 
@@ -25,7 +30,6 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false },
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URI,
       collectionName: "sessions",
@@ -53,7 +57,7 @@ app.get(
     failureRedirect: `${process.env.CLIENT_URL}/login`,
   }),
   (req, res) => {
-    res.redirect(`${process.env.CLIENT_URL / dashboard}/dashboard`);
+    res.redirect(`${process.env.CLIENT_URL}/dashboard`);
   },
 );
 

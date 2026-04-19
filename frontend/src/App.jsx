@@ -4,13 +4,16 @@ import viteLogo from "./assets/vite.svg";
 import heroImg from "./assets/hero.png";
 import { Routes, Route, Link } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
+import LandingPage from "./pages/LandingPage";
+import Navbar from "./components/ui/Navbar";
 
 function App() {
   return (
     <>
-      <h1>Necko</h1>
+      <Navbar />
       <Routes>
         <Route path="/login" element={<LoginPage />}></Route>
+        <Route path="/" element={<LandingPage />}></Route>
       </Routes>
     </>
   );
