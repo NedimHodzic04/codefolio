@@ -67,10 +67,6 @@ app.get("/auth/logout", (req, res) => {
   });
 });
 
-app.get("/dashboard", (req, res) => {
-  res.send("DASHBOARD");
-});
-
 app.post("/api/skills", checkAuth, async (req, res) => {
   try {
     const updatedUser = await User.findByIdAndUpdate(
