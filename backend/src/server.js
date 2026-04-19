@@ -49,15 +49,17 @@ app.get(
 
 app.get(
   "/api/auth/github/callback",
-  passport.authenticate("github", { failureRedirect: "/login" }),
+  passport.authenticate("github", {
+    failureRedirect: `${process.env.CLIENT_URL}/login`,
+  }),
   (req, res) => {
-    res.redirect("http://localhost:5000/dashboard");
+    res.redirect(`${process.env.CLIENT_URL / dashboard}/dashboard`);
   },
 );
 
 app.get("/auth/logout", (req, res) => {
   req.logout(() => {
-    res.redirect("http://localhost:5000");
+    res.redirect(process.env.CLIENT_URL);
   });
 });
 
