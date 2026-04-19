@@ -10,6 +10,8 @@ const ProjectSchema = new mongoose.Schema(
     liveDemo: { type: String },
     imageUrl: { type: String },
     isFeatured: { type: Boolean, default: false },
+    githubRepoId: { type: Number, unique: true, sparse: true },
+    language: { type: String },
   },
   { timestamps: true },
 );

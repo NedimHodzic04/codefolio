@@ -1,16 +1,71 @@
-# React + Vite
+# CodeFolio — Developer Portfolio Portal
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+CodeFolio is a multi-user web platform that allows developers to create a professional portfolio at a personal URL (`code-folio.app/username`) without the overhead of setting up or maintaining their own infrastructure.
 
-Currently, two official plugins are available:
+Upon signing in with GitHub, the platform automatically imports the user's public repository data to populate their profile. From there, users manage their content — bio, skills, projects, and education — through a private dashboard, and can choose from a selection of layout templates and themes to personalize how their portfolio looks.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- **GitHub OAuth** — Sign in with GitHub, no registration form required
+- **Automated Repository Import** — Public repos are imported automatically on first sign-in
+- **Private Dashboard** — Manage profile, projects, education, skills, and appearance
+- **GitHub Re-Sync** — Manually pull in new repositories as your work grows
+- **Layout Templates** — Choose between different portfolio layouts
+- **Theming** — Select a visual theme powered by shadcn/ui CSS variables
+- **Public Portfolio Page** — Accessible at `code-folio.app/username`, no login required
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+**Client**
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- React 18
+- React Router
+- Vite
+- shadcn/ui
+- Tailwind CSS
+
+**Server**
+
+- Node.js
+- Express.js
+- Passport.js (passport-github2)
+- Mongoose
+
+**Database**
+
+- MongoDB Atlas
+
+**Infrastructure**
+
+- DigitalOcean (Ubuntu Droplet)
+- PM2
+- Nginx
+
+## Project Structure
+
+```
+codefolio/
+├── client/                 # React frontend
+│   ├── src/
+│   │   ├── components/     # Shared and shadcn/ui components
+│   │   ├── pages/          # Dashboard and portfolio page views
+│   │   ├── templates/      # Portfolio layout templates
+│   │   └── main.jsx
+│   └── index.html
+├── server/                 # Express backend
+│   ├── models/             # Mongoose schemas (User, Project, Education)
+│   ├── routes/             # API and auth routes
+│   ├── middleware/         # Auth and error handling middleware
+│   └── index.js
+└── README.md
+```
+
+## Data Models
+
+- **User** — GitHub profile data, bio, skills, socials, layout and theme preferences
+- **Project** — Imported from GitHub, editable via dashboard
+- **Education** — Manually managed through dashboard
+
+## License
+
+This project is not open source. All rights reserved.

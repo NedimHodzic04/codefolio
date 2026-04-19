@@ -25,6 +25,13 @@ jobs:
             else
               git pull origin main
             fi
-            cd backend
+
+            # Install and build frontend
+            cd frontend
+            npm install
+            npm run build
+
+            # Install backend dependencies and restart
+            cd ../backend
             npm install
             pm2 restart all || pm2 start server.js --name "codefolio-api"

@@ -8,9 +8,13 @@ import User from "./models/user.model.js";
 import MongoStore from "connect-mongo";
 import checkAuth from "./middleware/auth.js";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 const app = express();
 
 dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 app.use(cors());
 
@@ -29,7 +33,7 @@ app.use(
     cookie: {
       maxAge: 1000 * 60 * 60 * 24,
       httpOnly: true,
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
     },
   }),
 );
@@ -100,8 +104,10 @@ app.get("/api/me", (req, res) => {
   }
 });
 
-app.get("/", (req, res) => {
-  res.json({message: "Codefolio"})
+app.use(express.static(path.join(__dirname, "../client/dist")));
+
+app.get("*", (req, res) => {
+  res.json({ message: "Codefolio" });
 });
 
 connectDB().then(
