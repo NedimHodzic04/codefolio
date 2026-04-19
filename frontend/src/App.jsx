@@ -8,7 +8,7 @@ import LoginPage from "./pages/LoginPage";
 function App() {
   return (
     <>
-      <h1>{message || null}</h1>
+      <h1>Necko</h1>
       <Routes>
         <Route path="/login" element={<LoginPage />}></Route>
       </Routes>
