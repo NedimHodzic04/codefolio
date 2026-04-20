@@ -20,7 +20,7 @@ passport.use(
           user = await User.create({
             githubId: profile.id,
             username: profile.username,
-            displayName: profile.displayName,
+            displayName: profile.displayName || profile.username,
             avatarUrl: profile._json.avatar_url,
             bio: profile._json.bio,
             email: profile._json.email,
