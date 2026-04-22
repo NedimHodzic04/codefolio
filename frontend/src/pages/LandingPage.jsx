@@ -10,6 +10,19 @@ export default function LandingPage() {
     <div className="min-h-screen bg-zinc-50">
       <main className="mx-auto w-full max-w-5xl px-4 py-10 md:py-16">
         <section className="space-y-6">
+          <div>
+            <img
+              src="/logo-light.svg"
+              className="h-12 w-auto dark:hidden"
+              alt="Codefolio"
+            />
+            <img
+              src="/logo-dark.svg"
+              className="hidden h-12 w-auto dark:block"
+              alt="Codefolio"
+            />
+          </div>
+
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="secondary">Shadcn UI</Badge>
             <Badge variant="outline">GitHub Sign-in</Badge>
