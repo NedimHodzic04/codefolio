@@ -59,7 +59,11 @@ app.get(
     failureRedirect: `${process.env.CLIENT_URL}/login`,
   }),
   (req, res) => {
-    req.session.save(() => {
+    req.session.save((err) => {
+      if (err) {
+        console.error("Session save error:", err);
+        return res.redirect(`${process.env.CLIENT_URL}/login`);
+      }
       res.redirect(`${process.env.CLIENT_URL}/dashboard`);
     });
   },
@@ -122,6 +126,8 @@ app.get("/api/:user", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../../frontend/dist")));
