@@ -5,6 +5,7 @@ import connectDB from "./config/db.js";
 import dotenv from "dotenv";
 import "./config/passport.js";
 import User from "./models/user.model.js";
+import Project from "./models/project.model.js";
 import MongoStore from "connect-mongo";
 import checkAuth from "./middleware/auth.js";
 import cors from "cors";
@@ -106,11 +107,25 @@ app.get("/api/me", (req, res) => {
   }
 });
 
-app.use(express.static(path.join(__dirname, "../../frontend/dist")));
-
-app.get("/{*path}", (req, res) => {
-  res.sendFile(path.join(__dirname, "../../frontend/dist", "index.html"));
+app.get("/api/:user", async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.params.user });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const projects = await Project.find({ user: user._id });
+    res.json({ ...user.toObject(), projects });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
 });
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../../frontend/dist")));
+  app.get("/{*path}", (req, res) => {
+    res.sendFile(path.join(__dirname, "../../frontend/dist", "index.html"));
+  });
+}
 
 connectDB().then(
   app.listen(port, () => {
