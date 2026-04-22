@@ -120,6 +120,12 @@ app.get("/api/:user", async (req, res) => {
   }
 });
 
+app.get("/index.html", (req, res) => {
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.sendFile(path.join(__dirname, "../../frontend/dist", "index.html"));
+});
+
+
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../../frontend/dist")));
   app.get("/{*path}", (req, res) => {
