@@ -21,7 +21,13 @@ app.set("trust proxy", 1);
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: (origin, cb) => {
+      // Allow same-origin / server-to-server requests (no Origin header),
+      // and allow the configured client URL for cross-site requests.
+      if (!origin) return cb(null, true);
+      if (origin === process.env.CLIENT_URL) return cb(null, true);
+      return cb(new Error(`CORS blocked for origin: ${origin}`));
+    },
     credentials: true,
   }),
 );
@@ -33,6 +39,7 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    proxy: process.env.NODE_ENV === "production",
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URI,
       collectionName: "sessions",
@@ -40,7 +47,9 @@ app.use(
     cookie: {
       maxAge: 1000 * 60 * 60 * 24,
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // In production behind a proxy/CDN, rely on forwarded proto to decide HTTPS.
+      // If Express doesn't think the request is secure, `secure: true` prevents Set-Cookie.
+      secure: process.env.NODE_ENV === "production" ? "auto" : false,
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     },
   }),
@@ -49,6 +58,20 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.json());
+
+app.get("/api/_debug/session", (req, res) => {
+  if (process.env.NODE_ENV !== "production") {
+    return res.json({
+      ok: true,
+      env: process.env.NODE_ENV,
+      sessionID: req.sessionID,
+      hasSession: Boolean(req.session),
+      isSecure: req.secure,
+      forwardedProto: req.get("x-forwarded-proto"),
+    });
+  }
+  return res.status(404).json({ message: "Not found" });
+});
 
 app.get(
   "/auth/github",
