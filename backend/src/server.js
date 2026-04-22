@@ -59,7 +59,9 @@ app.get(
     failureRedirect: `${process.env.CLIENT_URL}/login`,
   }),
   (req, res) => {
-    res.redirect(`${process.env.CLIENT_URL}/dashboard`);
+    req.session.save(() => {
+      res.redirect(`${process.env.CLIENT_URL}/dashboard`);
+    });
   },
 );
 
