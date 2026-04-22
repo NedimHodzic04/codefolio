@@ -37,6 +37,8 @@ export default function Navbar() {
           <span className="font-bold">Codefolio</span>
         </Link>
 
+        {/*test*/}
+
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
           {navLinks.map((link) => (
