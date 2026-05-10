@@ -1,5 +1,11 @@
 import mongoose from "mongoose";
 
+// Available layout templates
+export const LAYOUT_TEMPLATES = ["default", "minimal", "modern", "classic"];
+
+// Available themes
+export const THEMES = ["light", "dark", "blue", "purple"];
+
 const UserSchema = new mongoose.Schema(
   {
     githubId: { type: String, required: true, unique: true },
@@ -18,6 +24,8 @@ const UserSchema = new mongoose.Schema(
     education: [{ type: mongoose.Schema.Types.ObjectId, ref: "Education" }],
     projects: [{ type: mongoose.Schema.Types.ObjectId, ref: "Project" }],
     layoutTemplate: { type: String, default: "default" },
+    theme: { type: String, default: "light" },
+    githubAccessToken: { type: String, select: false }, // Stored securely, not returned by default
   },
   { timestamps: true },
 );
