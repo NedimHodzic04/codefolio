@@ -102,7 +102,7 @@ describe('Complete User Flow', () => {
     cy.contains('Cypress').should('be.visible')
 
     // Step 6: View portfolio
-    cy.intercept('GET', '**/api/users/testuser', {
+    cy.intercept('GET', '**/api/testuser', {
       statusCode: 200,
       body: {
         username: 'testuser',

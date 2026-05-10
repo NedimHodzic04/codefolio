@@ -56,7 +56,7 @@ describe('Appearance Changes', () => {
     cy.contains(/success|updated|saved/i, { timeout: 5000 }).should('be.visible')
 
     // Mock the public profile with new layout
-    cy.intercept('GET', '**/api/users/testuser', {
+    cy.intercept('GET', '**/api/testuser', {
       statusCode: 200,
       body: {
         username: 'testuser',
@@ -112,7 +112,7 @@ describe('Appearance Changes', () => {
     cy.contains(/success|updated|saved/i, { timeout: 5000 }).should('be.visible')
 
     // Mock the public profile with new theme
-    cy.intercept('GET', '**/api/users/testuser', {
+    cy.intercept('GET', '**/api/testuser', {
       statusCode: 200,
       body: {
         username: 'testuser',
