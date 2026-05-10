@@ -44,7 +44,7 @@ jobs:
         working-directory: backend
         run: npm test
         env:
-          MONGODB_URI: mongodb://localhost:27017/codefolio-test
+          MONGO_URI: mongodb://localhost:27017/codefolio-test
           SESSION_SECRET: test-secret
           GITHUB_CLIENT_ID: test-client-id
           GITHUB_CLIENT_SECRET: test-client-secret
@@ -86,7 +86,7 @@ jobs:
           npm start &
           sleep 10
         env:
-          MONGODB_URI: mongodb://localhost:27017/codefolio-test
+          MONGO_URI: mongodb://localhost:27017/codefolio-test
           SESSION_SECRET: test-secret
           GITHUB_CLIENT_ID: test-client-id
           GITHUB_CLIENT_SECRET: test-client-secret
