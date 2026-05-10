@@ -1,0 +1,18 @@
+{
+  "_id": "test-user-id",
+  "githubId": "12345",
+  "username": "testuser",
+  "displayName": "Test User",
+  "email": "test@example.com",
+  "avatarUrl": "https://avatars.githubusercontent.com/u/12345",
+  "bio": "Test bio for E2E testing",
+  "location": "Test Location",
+  "skills": ["JavaScript", "React", "Node.js"],
+  "socials": {
+    "linkedin": "https://linkedin.com/in/testuser",
+    "twitter": "https://twitter.com/testuser",
+    "website": "https://testuser.com"
+  },
+  "layoutTemplate": "default",
+  "theme": "light"
+}
