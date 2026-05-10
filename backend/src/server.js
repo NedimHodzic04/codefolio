@@ -4,13 +4,17 @@ import passport from "passport";
 import connectDB from "./config/db.js";
 import dotenv from "dotenv";
 import "./config/passport.js";
-import User from "./models/user.model.js";
-import Project from "./models/project.model.js";
 import MongoStore from "connect-mongo";
-import checkAuth from "./middleware/auth.js";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
+
+// Import routes
+import authRoutes from "./routes/auth.routes.js";
+import userRoutes from "./routes/user.routes.js";
+import educationRoutes from "./routes/education.routes.js";
+import projectRoutes from "./routes/project.routes.js";
+
 const app = express();
 
 dotenv.config();
@@ -59,100 +63,12 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.json());
 
-app.get("/api/_debug/session", (req, res) => {
-  if (process.env.NODE_ENV !== "production") {
-    return res.json({
-      ok: true,
-      env: process.env.NODE_ENV,
-      sessionID: req.sessionID,
-      hasSession: Boolean(req.session),
-      isSecure: req.secure,
-      forwardedProto: req.get("x-forwarded-proto"),
-    });
-  }
-  return res.status(404).json({ message: "Not found" });
-});
-
-app.get(
-  "/auth/github",
-  passport.authenticate("github", { scope: ["user:email"] }),
-);
-
-app.get(
-  "/api/auth/github/callback",
-  passport.authenticate("github", {
-    failureRedirect: `${process.env.CLIENT_URL}/login`,
-  }),
-  (req, res) => {
-    req.session.save((err) => {
-      if (err) {
-        console.error("Session save error:", err);
-        return res.redirect(`${process.env.CLIENT_URL}/login`);
-      }
-      res.redirect(`${process.env.CLIENT_URL}/dashboard`);
-    });
-  },
-);
-
-app.get("/auth/logout", (req, res) => {
-  req.logout(() => {
-    res.redirect(process.env.CLIENT_URL);
-  });
-});
-
-app.post("/api/skills", checkAuth, async (req, res) => {
-  try {
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user._id,
-      { $addToSet: { skills: req.body.skills } },
-      { new: true },
-    );
-
-    res.status(200).json({
-      message: "Skill added successfully!",
-      skills: updatedUser.skills,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error while adding skill" });
-  }
-});
-
-app.delete("/api/skills/:skillName", checkAuth, async (req, res) => {
-  const updatedUser = await User.findByIdAndUpdate(
-    req.user._id,
-    { $pull: { skills: req.params.skillName } },
-    { new: true },
-  );
-
-  res.json({
-    message: `${req.params.skillName} removed`,
-    skills: updatedUser.skills,
-  });
-});
-
-app.get("/api/me", (req, res) => {
-  if (req.user) {
-    res.json(req.user);
-  } else {
-    res.status(401).json({ message: "Not authenticated" });
-  }
-});
-
-app.get("/api/:user", async (req, res) => {
-  try {
-    const user = await User.findOne({ username: req.params.user });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    const projects = await Project.find({ user: user._id });
-    res.json({ ...user.toObject(), projects });
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-
+// Mount routes
+app.use("/auth", authRoutes);
+app.use("/api/auth", authRoutes); // Keep /api/auth/github/callback working
+app.use("/api/education", educationRoutes);
+app.use("/api/projects", projectRoutes);
+app.use("/api", userRoutes); // Must come last - has catch-all /:user route
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../../frontend/dist")));
