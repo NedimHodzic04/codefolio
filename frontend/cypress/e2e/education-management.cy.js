@@ -53,25 +53,39 @@ describe('Education Management', () => {
       body: newEducation
     }).as('createEducation')
 
+    // Mock GET to return the new education after creation
+    cy.intercept('GET', '**/api/education', {
+      statusCode: 200,
+      body: [newEducation]
+    }).as('getEducationAfterCreate')
+
     // Navigate to Education section
     cy.contains('Education').click()
+    cy.wait(500) // Wait for section to load
 
     // Click Add Education button
-    cy.contains('button', /add.*education/i).click()
+    cy.contains('button', 'Add Education').click()
+    cy.wait(500) // Wait for dialog to open
 
-    // Fill out the form
-    cy.get('input[name="institution"], input[placeholder*="institution" i]').type(newEducation.institution)
-    cy.get('input[name="degree"], input[placeholder*="degree" i]').type(newEducation.degree)
-    cy.get('input[name="fieldOfStudy"], input[placeholder*="field" i]').type(newEducation.fieldOfStudy)
-    cy.get('input[name="startDate"], input[type="date"]').first().type('2018-09-01')
-    cy.get('input[name="endDate"], input[type="date"]').last().type('2022-05-31')
+    // Fill out the form using correct IDs
+    cy.get('#add-institution').type(newEducation.institution)
+    cy.get('#add-degree').type(newEducation.degree)
+    cy.get('#add-fieldOfStudy').type(newEducation.fieldOfStudy)
+    cy.get('#add-startDate').type('2018-09-01')
+    cy.get('#add-endDate').type('2022-05-31')
+    cy.get('#add-description').type(newEducation.description)
 
-    // Submit the form
-    cy.contains('button', /save|create|add/i).click()
+    // Submit the form - find the button inside the dialog
+    cy.get('[role="dialog"]').within(() => {
+      cy.contains('button', 'Add Education').click()
+    })
     cy.wait('@createEducation')
 
     // Verify success message
     cy.contains(/success|added|created/i, { timeout: 5000 }).should('be.visible')
+
+    // Wait for the list to refresh
+    cy.wait(1000)
 
     // Verify education appears in the list
     cy.contains(newEducation.institution).should('be.visible')
@@ -113,22 +127,32 @@ describe('Education Management', () => {
       body: updatedEducation
     }).as('updateEducation')
 
-    // Click edit button
-    cy.contains(existingEducation.institution).parent().parent().within(() => {
-      cy.contains('button', /edit/i).click()
-    })
+    // Mock GET to return updated data after the edit
+    cy.intercept('GET', '**/api/education', {
+      statusCode: 200,
+      body: [updatedEducation]
+    }).as('getEducationAfterUpdate')
 
-    // Update the fields
-    cy.get('input[name="institution"], input[placeholder*="institution" i]').clear().type(updatedEducation.institution)
-    cy.get('input[name="degree"], input[placeholder*="degree" i]').clear().type(updatedEducation.degree)
-    cy.get('input[name="fieldOfStudy"], input[placeholder*="field" i]').clear().type(updatedEducation.fieldOfStudy)
+    // Click edit button - find it by text near the institution name
+    cy.contains(existingEducation.institution).should('be.visible')
+    cy.get('button').contains('Edit').first().click()
+
+    cy.wait(500) // Wait for dialog to open
+
+    // Update the fields using correct IDs for edit dialog
+    cy.get('#edit-institution').clear().type(updatedEducation.institution)
+    cy.get('#edit-degree').clear().type(updatedEducation.degree)
+    cy.get('#edit-fieldOfStudy').clear().type(updatedEducation.fieldOfStudy)
 
     // Save changes
-    cy.contains('button', /save|update/i).click()
+    cy.contains('button', 'Save Changes').click()
     cy.wait('@updateEducation')
 
     // Verify success message
     cy.contains(/success|updated|saved/i, { timeout: 5000 }).should('be.visible')
+
+    // Wait for refetch
+    cy.wait(1000)
 
     // Verify updated content
     cy.contains(updatedEducation.institution).should('be.visible')
@@ -163,17 +187,29 @@ describe('Education Management', () => {
       body: { message: 'Education deleted' }
     }).as('deleteEducation')
 
-    // Click delete button
-    cy.contains(educationToDelete.institution).parent().parent().within(() => {
-      cy.contains('button', /delete/i).click()
-    })
+    // Mock GET to return empty array after deletion
+    cy.intercept('GET', '**/api/education', {
+      statusCode: 200,
+      body: []
+    }).as('getEducationAfterDelete')
 
-    // Confirm deletion in dialog
-    cy.contains(/confirm|delete|yes/i).click()
+    // Click delete button - find it by text
+    cy.contains(educationToDelete.institution).should('be.visible')
+    cy.get('button').contains('Delete').first().click()
+
+    cy.wait(500) // Wait for dialog to open
+
+    // Confirm deletion in dialog - the delete button in the confirmation dialog
+    cy.get('[role="dialog"]').within(() => {
+      cy.contains('button', 'Delete').click()
+    })
     cy.wait('@deleteEducation')
 
     // Verify success message
     cy.contains(/success|deleted|removed/i, { timeout: 5000 }).should('be.visible')
+
+    // Wait for refetch
+    cy.wait(1000)
 
     // Verify education is removed from list
     cy.contains(educationToDelete.institution).should('not.exist')
@@ -182,19 +218,23 @@ describe('Education Management', () => {
   it('should validate date order (start before end)', () => {
     // Navigate to Education section
     cy.contains('Education').click()
+    cy.wait(500) // Wait for section to load
 
     // Click Add Education button
-    cy.contains('button', /add.*education/i).click()
+    cy.contains('button', 'Add Education').click()
+    cy.wait(500) // Wait for dialog to open
 
     // Fill out the form with invalid dates (end before start)
-    cy.get('input[name="institution"], input[placeholder*="institution" i]').type('Test University')
-    cy.get('input[name="degree"], input[placeholder*="degree" i]').type('Bachelor of Science')
-    cy.get('input[name="fieldOfStudy"], input[placeholder*="field" i]').type('Computer Science')
-    cy.get('input[name="startDate"], input[type="date"]').first().type('2022-05-31')
-    cy.get('input[name="endDate"], input[type="date"]').last().type('2018-09-01')
+    cy.get('#add-institution').type('Test University')
+    cy.get('#add-degree').type('Bachelor of Science')
+    cy.get('#add-fieldOfStudy').type('Computer Science')
+    cy.get('#add-startDate').type('2022-05-31')
+    cy.get('#add-endDate').type('2018-09-01')
 
-    // Try to submit the form
-    cy.contains('button', /save|create|add/i).click()
+    // Try to submit the form - find the button inside the dialog
+    cy.get('[role="dialog"]').within(() => {
+      cy.contains('button', 'Add Education').click()
+    })
 
     // Verify error message appears
     cy.contains(/date|invalid|before|after/i, { timeout: 5000 }).should('be.visible')
@@ -221,13 +261,16 @@ describe('Education Management', () => {
     cy.contains('Education').click()
     cy.wait('@getEducationWithData')
 
-    // Click delete button
-    cy.contains(education.institution).parent().parent().within(() => {
-      cy.contains('button', /delete/i).click()
-    })
+    // Click delete button - find it by text
+    cy.contains(education.institution).should('be.visible')
+    cy.get('button').contains('Delete').first().click()
+
+    cy.wait(500) // Wait for dialog to open
 
     // Cancel deletion
-    cy.contains(/cancel|no/i).click()
+    cy.get('[role="dialog"]').within(() => {
+      cy.contains('button', 'Cancel').click()
+    })
 
     // Verify education still exists
     cy.contains(education.institution).should('be.visible')

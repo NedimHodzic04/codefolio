@@ -53,23 +53,37 @@ describe('Project Management', () => {
       body: newProject
     }).as('createProject')
 
+    // Mock GET to return the new project after creation
+    cy.intercept('GET', '**/api/projects', {
+      statusCode: 200,
+      body: [newProject]
+    }).as('getProjectsAfterCreate')
+
     // Navigate to Projects section
     cy.contains('Projects').click()
+    cy.wait(500) // Wait for section to load
 
     // Click Add Custom Project button
-    cy.contains('button', /add.*project/i).click()
+    cy.contains('button', 'Add Custom Project').click()
+    cy.wait(500) // Wait for dialog to open
 
-    // Fill out the form
-    cy.get('input[name="title"], input[placeholder*="title" i]').type(newProject.title)
-    cy.get('textarea[name="description"], textarea[placeholder*="description" i]').type(newProject.description)
-    cy.get('input[name="liveDemo"], input[placeholder*="demo" i], input[placeholder*="url" i]').first().type(newProject.liveDemo)
+    // Fill out the form using correct IDs
+    cy.get('#add-title').type(newProject.title)
+    cy.get('#add-description').type(newProject.description)
+    cy.get('#add-liveDemo').type(newProject.liveDemo)
+    cy.get('#add-imageUrl').type(newProject.imageUrl)
 
-    // Submit the form
-    cy.contains('button', /save|create|add/i).click()
+    // Submit the form - find the button inside the dialog
+    cy.get('[role="dialog"]').within(() => {
+      cy.contains('button', 'Create Project').click()
+    })
     cy.wait('@createProject')
 
     // Verify success message
     cy.contains(/success|added|created/i, { timeout: 5000 }).should('be.visible')
+
+    // Wait for the list to refresh
+    cy.wait(1000)
 
     // Verify project appears in the list
     cy.contains(newProject.title).should('be.visible')
@@ -110,22 +124,32 @@ describe('Project Management', () => {
       body: updatedProject
     }).as('updateProject')
 
-    // Click edit button
-    cy.contains(existingProject.title).parent().parent().within(() => {
-      cy.contains('button', /edit/i).click()
-    })
+    // Mock GET to return updated data after the edit
+    cy.intercept('GET', '**/api/projects', {
+      statusCode: 200,
+      body: [updatedProject]
+    }).as('getProjectsAfterUpdate')
 
-    // Update the fields
-    cy.get('input[name="title"], input[placeholder*="title" i]').clear().type(updatedProject.title)
-    cy.get('textarea[name="description"], textarea[placeholder*="description" i]').clear().type(updatedProject.description)
-    cy.get('input[name="liveDemo"], input[placeholder*="demo" i], input[placeholder*="url" i]').first().clear().type(updatedProject.liveDemo)
+    // Click edit button - find it by text
+    cy.contains(existingProject.title).should('be.visible')
+    cy.get('button').contains('Edit').first().click()
+
+    cy.wait(500) // Wait for dialog to open
+
+    // Update the fields using correct IDs for edit dialog
+    cy.get('#edit-title').clear().type(updatedProject.title)
+    cy.get('#edit-description').clear().type(updatedProject.description)
+    cy.get('#edit-liveDemo').clear().type(updatedProject.liveDemo)
 
     // Save changes
-    cy.contains('button', /save|update/i).click()
+    cy.contains('button', 'Save Changes').click()
     cy.wait('@updateProject')
 
     // Verify success message
     cy.contains(/success|updated|saved/i, { timeout: 5000 }).should('be.visible')
+
+    // Wait for refetch
+    cy.wait(1000)
 
     // Verify updated content
     cy.contains(updatedProject.title).should('be.visible')
@@ -158,17 +182,29 @@ describe('Project Management', () => {
       body: { message: 'Project deleted' }
     }).as('deleteProject')
 
-    // Click delete button
-    cy.contains(projectToDelete.title).parent().parent().within(() => {
-      cy.contains('button', /delete/i).click()
-    })
+    // Mock GET to return empty array after deletion
+    cy.intercept('GET', '**/api/projects', {
+      statusCode: 200,
+      body: []
+    }).as('getProjectsAfterDelete')
+
+    // Click delete button - find it by text
+    cy.contains(projectToDelete.title).should('be.visible')
+    cy.get('button').contains('Delete').first().click()
+
+    cy.wait(500) // Wait for dialog to open
 
     // Confirm deletion in dialog
-    cy.contains(/confirm|delete|yes/i).click()
+    cy.get('[role="dialog"]').within(() => {
+      cy.contains('button', 'Delete').click()
+    })
     cy.wait('@deleteProject')
 
     // Verify success message
     cy.contains(/success|deleted|removed/i, { timeout: 5000 }).should('be.visible')
+
+    // Wait for refetch
+    cy.wait(1000)
 
     // Verify project is removed from list
     cy.contains(projectToDelete.title).should('not.exist')
@@ -194,13 +230,16 @@ describe('Project Management', () => {
     cy.contains('Projects').click()
     cy.wait('@getProjectsWithData')
 
-    // Click delete button
-    cy.contains(project.title).parent().parent().within(() => {
-      cy.contains('button', /delete/i).click()
-    })
+    // Click delete button - find it by text
+    cy.contains(project.title).should('be.visible')
+    cy.get('button').contains('Delete').first().click()
+
+    cy.wait(500) // Wait for dialog to open
 
     // Cancel deletion
-    cy.contains(/cancel|no/i).click()
+    cy.get('[role="dialog"]').within(() => {
+      cy.contains('button', 'Cancel').click()
+    })
 
     // Verify project still exists
     cy.contains(project.title).should('be.visible')
