@@ -1,0 +1,20 @@
+[
+  {
+    "_id": "edu-1",
+    "institution": "Test University",
+    "degree": "Bachelor of Science",
+    "fieldOfStudy": "Computer Science",
+    "startDate": "2018-09-01",
+    "endDate": "2022-05-31",
+    "description": "Studied computer science fundamentals and software engineering"
+  },
+  {
+    "_id": "edu-2",
+    "institution": "Test College",
+    "degree": "Associate Degree",
+    "fieldOfStudy": "Information Technology",
+    "startDate": "2016-09-01",
+    "endDate": "2018-05-31",
+    "description": "Foundation in IT and programming"
+  }
+]

@@ -4,9 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "cypress run",
-    "test:open": "cypress open",
-    "test:unit": "node src/tests/education.property.test.js",
+    "test": "node src/tests/education.property.test.js && node src/tests/profile.property.test.js && node src/tests/skill-idempotence.property.test.js && node src/tests/skill-removal.property.test.js && node src/tests/project.property.test.js && node src/tests/resync-preservation.property.test.js && node src/tests/resync-upsert.property.test.js && node src/tests/appearance.property.test.js && node src/tests/auth-blocking.property.test.js && node src/tests/deletion-confirmation.property.test.js",
     "dev": "nodemon src/server.js"
   },
   "keywords": [],

@@ -19,7 +19,7 @@ export default function PortfolioPage() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/${username}`, {
+    fetch(`${import.meta.env.VITE_API_URL}/api/users/${username}`, {
       credentials: "include",
     })
       .then((res) => {

@@ -1,0 +1,21 @@
+[
+  {
+    "_id": "project-1",
+    "title": "Test Project 1",
+    "description": "A test project from GitHub",
+    "techStack": ["JavaScript", "React"],
+    "githubLink": "https://github.com/testuser/project1",
+    "liveDemo": "https://project1.example.com",
+    "githubRepoId": 111,
+    "language": "JavaScript"
+  },
+  {
+    "_id": "project-2",
+    "title": "Custom Test Project",
+    "description": "A custom project not from GitHub",
+    "techStack": ["Python", "Django"],
+    "liveDemo": "https://project2.example.com",
+    "githubRepoId": null,
+    "language": "Python"
+  }
+]

@@ -4,6 +4,7 @@ import LandingPage from "./pages/LandingPage";
 import Navbar from "./components/ui/Navbar";
 import Dashboard from "./pages/Dashboard";
 import PortfolioPage from "./pages/PortfolioPage";
+import { Toaster } from "@/components/ui/toaster";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/:username" element={<PortfolioPage />} />
         <Route path="/" element={<LandingPage />} />
       </Routes>
+      <Toaster />
     </>
   );
 }
