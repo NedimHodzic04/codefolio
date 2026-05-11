@@ -37,10 +37,6 @@ export const createProject = async (req, res) => {
 
     await newProject.save();
 
-    await User.findByIdAndUpdate(req.user._id, {
-      $push: { projects: newProject._id },
-    });
-
     res.status(201).json({
       message: "Project created successfully",
       project: newProject,
@@ -105,10 +101,6 @@ export const deleteProject = async (req, res) => {
     }
 
     await Project.findByIdAndDelete(req.params.id);
-
-    await User.findByIdAndUpdate(req.user._id, {
-      $pull: { projects: req.params.id },
-    });
 
     res.json({ message: "Project deleted successfully" });
   } catch (error) {

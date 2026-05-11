@@ -22,7 +22,6 @@ const UserSchema = new mongoose.Schema(
       website: String,
     },
     education: [{ type: mongoose.Schema.Types.ObjectId, ref: "Education" }],
-    projects: [{ type: mongoose.Schema.Types.ObjectId, ref: "Project" }],
     layoutTemplate: { type: String, default: "default" },
     theme: { type: String, default: "light" },
     githubAccessToken: { type: String, select: false }, // Stored securely, not returned by default
