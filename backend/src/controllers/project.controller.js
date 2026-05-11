@@ -117,6 +117,34 @@ export const deleteProject = async (req, res) => {
   }
 };
 
+export const toggleProjectVisibility = async (req, res) => {
+  try {
+    const project = await Project.findOne({
+      _id: req.params.id,
+      user: req.user._id,
+    });
+
+    if (!project) {
+      return res
+        .status(404)
+        .json({ message: "Project not found or unauthorized" });
+    }
+
+    // Handle legacy projects without isVisible field (treat as visible)
+    const currentVisibility = project.isVisible !== undefined ? project.isVisible : true;
+    project.isVisible = !currentVisibility;
+    await project.save();
+
+    res.json({
+      message: `Project ${project.isVisible ? "shown" : "hidden"} successfully`,
+      project,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error while toggling visibility" });
+  }
+};
+
 export const syncGitHubProjects = async (req, res) => {
   try {
     // Fetch user with access token (not returned by default due to select: false)

@@ -244,4 +244,89 @@ describe('Project Management', () => {
     // Verify project still exists
     cy.contains(project.title).should('be.visible')
   })
+
+  it('should toggle project visibility', () => {
+    const visibleProject = {
+      _id: 'project-1',
+      title: 'Visible Project',
+      description: 'This project is visible',
+      techStack: ['React'],
+      isVisible: true,
+      githubRepoId: null
+    }
+
+    // Mock projects list
+    cy.intercept('GET', '**/api/projects', {
+      statusCode: 200,
+      body: [visibleProject]
+    }).as('getProjectsWithData')
+
+    cy.visit('/dashboard')
+    cy.wait('@getUser')
+    cy.contains('Projects').click()
+    cy.wait('@getProjectsWithData')
+
+    // Mock the visibility toggle request
+    cy.intercept('PATCH', `**/api/projects/${visibleProject._id}/visibility`, {
+      statusCode: 200,
+      body: {
+        message: 'Project hidden successfully',
+        project: { ...visibleProject, isVisible: false }
+      }
+    }).as('toggleVisibility')
+
+    // Mock GET to return updated project after toggle
+    cy.intercept('GET', '**/api/projects', {
+      statusCode: 200,
+      body: [{ ...visibleProject, isVisible: false }]
+    }).as('getProjectsAfterToggle')
+
+    // Find and click the visibility switch
+    cy.contains(visibleProject.title).should('be.visible')
+    cy.get(`[id^="visibility-"]`).first().click()
+    cy.wait('@toggleVisibility')
+
+    // Verify success message
+    cy.contains(/hidden|success/i, { timeout: 5000 }).should('be.visible')
+
+    // Wait for refetch
+    cy.wait(1000)
+
+    // Verify "Hidden" badge appears
+    cy.contains('Hidden').should('be.visible')
+  })
+
+  it('should show hidden projects with reduced opacity', () => {
+    const hiddenProject = {
+      _id: 'project-1',
+      title: 'Hidden Project',
+      description: 'This project is hidden',
+      techStack: ['React'],
+      isVisible: false,
+      githubRepoId: null
+    }
+
+    // Mock projects list with hidden project
+    cy.intercept('GET', '**/api/projects', {
+      statusCode: 200,
+      body: [hiddenProject]
+    }).as('getProjectsWithData')
+
+    cy.visit('/dashboard')
+    cy.wait('@getUser')
+    cy.contains('Projects').click()
+    cy.wait('@getProjectsWithData')
+
+    // Verify project is visible in dashboard (even though hidden from public)
+    cy.contains(hiddenProject.title).should('be.visible')
+    
+    // Verify "Hidden" badge is shown
+    cy.contains('Hidden').should('be.visible')
+    
+    // Verify the card has reduced opacity class
+    cy.contains(hiddenProject.title)
+      .parents('[class*="Card"]')
+      .should('have.class', 'opacity-60')
+  })
 })
+
