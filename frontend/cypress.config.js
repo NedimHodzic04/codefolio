@@ -14,6 +14,6 @@ export default defineConfig({
   },
   viewportWidth: 1280,
   viewportHeight: 720,
-  video: false,
+  video: process.env.CI ? true : false, // Videos only in CI for debugging
   screenshotOnRunFailure: true,
 })
