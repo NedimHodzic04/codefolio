@@ -10,6 +10,7 @@ const ProjectSchema = new mongoose.Schema(
     liveDemo: { type: String },
     imageUrl: { type: String },
     isFeatured: { type: Boolean, default: false },
+    isVisible: { type: Boolean, default: true },
     githubRepoId: { type: Number }, // No unique constraint - uniqueness handled at application level
     language: { type: String },
   },

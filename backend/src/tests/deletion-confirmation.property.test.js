@@ -75,9 +75,6 @@ const simulateDeletionWithConfirmation = async (projectId, userId, confirmed) =>
 
   // Step 3: Only proceed with deletion if confirmed
   await Project.findByIdAndDelete(projectId);
-  await User.findByIdAndUpdate(userId, {
-    $pull: { projects: projectId },
-  });
 
   return { deleted: true, project: null };
 };
@@ -117,11 +114,6 @@ const runPropertyTest = async () => {
 
           await newProject.save();
 
-          // Add project to user's projects array
-          await User.findByIdAndUpdate(testUser._id, {
-            $push: { projects: newProject._id },
-          });
-
           const projectId = newProject._id;
 
           // Simulate deletion workflow with confirmation
@@ -139,18 +131,6 @@ const runPropertyTest = async () => {
             if (projectAfterOperation !== null) {
               throw new Error(
                 `Deletion confirmation violated! User confirmed deletion but project still exists (ID: ${projectId})`
-              );
-            }
-
-            // Verify project was removed from user's projects array
-            const updatedUser = await User.findById(testUser._id);
-            const projectInUserArray = updatedUser.projects.some(
-              (pid) => pid.toString() === projectId.toString()
-            );
-
-            if (projectInUserArray) {
-              throw new Error(
-                `Deletion confirmation violated! Project removed from database but still in user's projects array`
               );
             }
 
@@ -183,9 +163,6 @@ const runPropertyTest = async () => {
 
           // Clean up for next iteration
           await Project.findByIdAndDelete(projectId);
-          await User.findByIdAndUpdate(testUser._id, {
-            $pull: { projects: projectId },
-          });
         }
       ),
       { numRuns: 100 }

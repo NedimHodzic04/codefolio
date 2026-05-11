@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
+import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
@@ -198,6 +199,26 @@ export default function ProjectsSection({ user }) {
     }
   };
 
+  const handleToggleVisibility = async (project) => {
+    try {
+      const response = await fetch(`${apiUrl}/api/projects/${project._id}/visibility`, {
+        method: "PATCH",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Failed to toggle visibility");
+      }
+
+      const data = await response.json();
+      toast.success(data.message);
+      await fetchProjects();
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
+
   const openEditDialog = (project) => {
     setSelectedProject(project);
     setValidationErrors({});
@@ -348,78 +369,101 @@ export default function ProjectsSection({ user }) {
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
-          {projects.map((project) => (
-            <Card key={project._id}>
-              <CardHeader>
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <CardTitle className="truncate">{project.title}</CardTitle>
-                    {project.language && (
-                      <Badge variant="secondary" className="mt-2">
-                        {project.language}
-                      </Badge>
+          {projects.map((project) => {
+            // Handle legacy projects without isVisible field (treat as visible)
+            const isVisible = project.isVisible !== undefined ? project.isVisible : true;
+            return (
+              <Card key={project._id} className={!isVisible ? "opacity-60" : ""}>
+                <CardHeader>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="truncate">{project.title}</CardTitle>
+                        {!isVisible && (
+                          <Badge variant="outline" className="text-xs">
+                            Hidden
+                          </Badge>
+                        )}
+                      </div>
+                      {project.language && (
+                        <Badge variant="secondary" className="mt-2">
+                          {project.language}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {project.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-3">
+                      {project.description}
+                    </p>
+                  )}
+                  {project.techStack && project.techStack.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {project.techStack.map((tech, index) => (
+                        <Badge key={index} variant="outline" className="text-xs">
+                          {tech}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {project.githubLink && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        asChild
+                      >
+                        <a href={project.githubLink} target="_blank" rel="noopener noreferrer">
+                          GitHub
+                        </a>
+                      </Button>
+                    )}
+                    {project.liveDemo && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        asChild
+                      >
+                        <a href={project.liveDemo} target="_blank" rel="noopener noreferrer">
+                          Live Demo
+                        </a>
+                      </Button>
                     )}
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {project.description && (
-                  <p className="text-sm text-muted-foreground line-clamp-3">
-                    {project.description}
-                  </p>
-                )}
-                {project.techStack && project.techStack.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {project.techStack.map((tech, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
-                        {tech}
-                      </Badge>
-                    ))}
+                  <div className="flex items-center justify-between pt-2 border-t">
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openEditDialog(project)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openDeleteDialog(project)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor={`visibility-${project._id}`} className="text-xs text-muted-foreground cursor-pointer">
+                        {isVisible ? "Visible" : "Hidden"}
+                      </Label>
+                      <Switch
+                        id={`visibility-${project._id}`}
+                        checked={isVisible}
+                        onCheckedChange={() => handleToggleVisibility(project)}
+                      />
+                    </div>
                   </div>
-                )}
-                <div className="flex flex-wrap gap-2 pt-2">
-                  {project.githubLink && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      asChild
-                    >
-                      <a href={project.githubLink} target="_blank" rel="noopener noreferrer">
-                        GitHub
-                      </a>
-                    </Button>
-                  )}
-                  {project.liveDemo && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      asChild
-                    >
-                      <a href={project.liveDemo} target="_blank" rel="noopener noreferrer">
-                        Live Demo
-                      </a>
-                    </Button>
-                  )}
-                </div>
-                <div className="flex gap-2 pt-2 border-t">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => openEditDialog(project)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => openDeleteDialog(project)}
-                  >
-                    Delete
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
 

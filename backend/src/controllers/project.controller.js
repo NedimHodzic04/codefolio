@@ -37,10 +37,6 @@ export const createProject = async (req, res) => {
 
     await newProject.save();
 
-    await User.findByIdAndUpdate(req.user._id, {
-      $push: { projects: newProject._id },
-    });
-
     res.status(201).json({
       message: "Project created successfully",
       project: newProject,
@@ -106,14 +102,38 @@ export const deleteProject = async (req, res) => {
 
     await Project.findByIdAndDelete(req.params.id);
 
-    await User.findByIdAndUpdate(req.user._id, {
-      $pull: { projects: req.params.id },
-    });
-
     res.json({ message: "Project deleted successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error while deleting project" });
+  }
+};
+
+export const toggleProjectVisibility = async (req, res) => {
+  try {
+    const project = await Project.findOne({
+      _id: req.params.id,
+      user: req.user._id,
+    });
+
+    if (!project) {
+      return res
+        .status(404)
+        .json({ message: "Project not found or unauthorized" });
+    }
+
+    // Handle legacy projects without isVisible field (treat as visible)
+    const currentVisibility = project.isVisible !== undefined ? project.isVisible : true;
+    project.isVisible = !currentVisibility;
+    await project.save();
+
+    res.json({
+      message: `Project ${project.isVisible ? "shown" : "hidden"} successfully`,
+      project,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error while toggling visibility" });
   }
 };
 

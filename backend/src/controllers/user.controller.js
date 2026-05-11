@@ -16,7 +16,15 @@ export const getUserByUsername = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    const projects = await Project.find({ user: user._id });
+    // Only return visible projects for public portfolio
+    // Include projects where isVisible is undefined (legacy projects) or true
+    const projects = await Project.find({ 
+      user: user._id, 
+      $or: [
+        { isVisible: true },
+        { isVisible: { $exists: false } }
+      ]
+    });
     res.json({ ...user.toObject(), projects });
   } catch (error) {
     res.status(500).json({ message: "Server error" });

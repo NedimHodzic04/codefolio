@@ -42,6 +42,7 @@ export async function fetchAndSaveRepos(accessToken, userId) {
           githubLink: repo.html_url,
           language: repo.language || "",
           githubRepoId: repo.id,
+          isVisible: true, // Ensure synced repos are visible by default
         },
         { upsert: true, new: true }
       );
