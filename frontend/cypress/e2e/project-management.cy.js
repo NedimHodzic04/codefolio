@@ -323,10 +323,10 @@ describe('Project Management', () => {
     // Verify "Hidden" badge is shown
     cy.contains('Hidden').should('be.visible')
     
-    // Verify the card has reduced opacity class
+    // Verify the card has reduced opacity class by checking the closest parent with opacity-60
     cy.contains(hiddenProject.title)
-      .parents('[class*="Card"]')
-      .should('have.class', 'opacity-60')
+      .closest('.opacity-60')
+      .should('exist')
   })
 })
 
