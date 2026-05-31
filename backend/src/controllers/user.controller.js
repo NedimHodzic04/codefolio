@@ -12,18 +12,17 @@ export const getMe = (req, res) => {
 
 export const getUserByUsername = async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.params.user });
+    const user = await User.findOne({ username: req.params.user }).populate(
+      "education",
+    );
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
     // Only return visible projects for public portfolio
     // Include projects where isVisible is undefined (legacy projects) or true
-    const projects = await Project.find({ 
-      user: user._id, 
-      $or: [
-        { isVisible: true },
-        { isVisible: { $exists: false } }
-      ]
+    const projects = await Project.find({
+      user: user._id,
+      $or: [{ isVisible: true }, { isVisible: { $exists: false } }],
     });
     res.json({ ...user.toObject(), projects });
   } catch (error) {
@@ -36,7 +35,7 @@ export const addSkill = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
       { $addToSet: { skills: req.body.skills } },
-      { new: true }
+      { new: true },
     );
 
     res.status(200).json({
@@ -54,7 +53,7 @@ export const removeSkill = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
       { $pull: { skills: req.params.skillName } },
-      { new: true }
+      { new: true },
     );
 
     res.json({
@@ -71,15 +70,13 @@ export const updateProfile = async (req, res) => {
   try {
     const { bio, location } = req.body;
     const updateData = {};
-    
+
     if (bio !== undefined) updateData.bio = bio;
     if (location !== undefined) updateData.location = location;
 
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user._id,
-      updateData,
-      { new: true }
-    );
+    const updatedUser = await User.findByIdAndUpdate(req.user._id, updateData, {
+      new: true,
+    });
 
     res.json({
       message: "Profile updated successfully",
@@ -104,7 +101,7 @@ const isValidUrl = (url) => {
 export const updateSocials = async (req, res) => {
   try {
     const { linkedin, twitter, website } = req.body;
-    
+
     // Validate URL formats
     if (linkedin && !isValidUrl(linkedin)) {
       return res.status(400).json({ message: "Invalid LinkedIn URL format" });
@@ -116,15 +113,21 @@ export const updateSocials = async (req, res) => {
       return res.status(400).json({ message: "Invalid website URL format" });
     }
 
-    const updateData = { socials: {} };
-    if (linkedin !== undefined) updateData.socials.linkedin = linkedin;
-    if (twitter !== undefined) updateData.socials.twitter = twitter;
-    if (website !== undefined) updateData.socials.website = website;
+    const existing = req.user.socials || {};
+    const mergedSocials = {
+      linkedin: existing.linkedin ?? "",
+      twitter: existing.twitter ?? "",
+      website: existing.website ?? "",
+    };
+
+    if (linkedin !== undefined) mergedSocials.linkedin = linkedin;
+    if (twitter !== undefined) mergedSocials.twitter = twitter;
+    if (website !== undefined) mergedSocials.website = website;
 
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
-      updateData,
-      { new: true }
+      { $set: { socials: mergedSocials } },
+      { new: true },
     );
 
     res.json({
@@ -133,7 +136,9 @@ export const updateSocials = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error while updating social links" });
+    res
+      .status(500)
+      .json({ message: "Server error while updating social links" });
   }
 };
 
@@ -145,8 +150,8 @@ export const updateAppearance = async (req, res) => {
     // Validate layoutTemplate if provided
     if (layoutTemplate !== undefined) {
       if (!LAYOUT_TEMPLATES.includes(layoutTemplate)) {
-        return res.status(400).json({ 
-          message: `Invalid layout template. Must be one of: ${LAYOUT_TEMPLATES.join(", ")}` 
+        return res.status(400).json({
+          message: `Invalid layout template. Must be one of: ${LAYOUT_TEMPLATES.join(", ")}`,
         });
       }
       updateData.layoutTemplate = layoutTemplate;
@@ -155,18 +160,16 @@ export const updateAppearance = async (req, res) => {
     // Validate theme if provided
     if (theme !== undefined) {
       if (!THEMES.includes(theme)) {
-        return res.status(400).json({ 
-          message: `Invalid theme. Must be one of: ${THEMES.join(", ")}` 
+        return res.status(400).json({
+          message: `Invalid theme. Must be one of: ${THEMES.join(", ")}`,
         });
       }
       updateData.theme = theme;
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user._id,
-      updateData,
-      { new: true }
-    );
+    const updatedUser = await User.findByIdAndUpdate(req.user._id, updateData, {
+      new: true,
+    });
 
     res.json({
       message: "Appearance updated successfully",

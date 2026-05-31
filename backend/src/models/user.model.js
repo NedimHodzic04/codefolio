@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 export const LAYOUT_TEMPLATES = ["default", "minimal", "modern", "classic"];
 
 // Available themes
-export const THEMES = ["light", "dark", "blue", "purple"];
+export const THEMES = ["light", "dark", "midnight", "nord", "green", "rose", "purple"];
 
 const UserSchema = new mongoose.Schema(
   {

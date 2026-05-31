@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,31 @@ export default function ProfileSection({ user, onUpdate }) {
   const [validationErrors, setValidationErrors] = useState({});
 
   const apiUrl = import.meta.env.VITE_API_URL;
+
+  useEffect(() => {
+    if (!user) return;
+
+    if (!isEditingBio) {
+      setBio(user.bio || "");
+    }
+    if (!isEditingLocation) {
+      setLocation(user.location || "");
+    }
+    setSocials({
+      linkedin: user.socials?.linkedin || "",
+      twitter: user.socials?.twitter || "",
+      website: user.socials?.website || "",
+    });
+  }, [
+    user,
+    user?.bio,
+    user?.location,
+    user?.socials?.linkedin,
+    user?.socials?.twitter,
+    user?.socials?.website,
+    isEditingBio,
+    isEditingLocation,
+  ]);
 
   const handleSaveBio = async () => {
     setLoading((prev) => ({ ...prev, bio: true }));
@@ -179,8 +204,14 @@ export default function ProfileSection({ user, onUpdate }) {
       }
 
       const data = await response.json();
+      const updatedSocials = {
+        linkedin: data.socials?.linkedin || "",
+        twitter: data.socials?.twitter || "",
+        website: data.socials?.website || "",
+      };
+      setSocials(updatedSocials);
       toast.success("Social links updated successfully");
-      if (onUpdate) onUpdate({ ...user, socials: data.socials });
+      if (onUpdate) onUpdate({ ...user, socials: updatedSocials });
     } catch (err) {
       toast.error(err.message);
     } finally {
