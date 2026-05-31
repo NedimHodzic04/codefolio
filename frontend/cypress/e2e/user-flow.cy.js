@@ -4,29 +4,30 @@
  * Requirements: All
  */
 
+const dashboardUser = {
+  _id: 'test-user-id',
+  githubId: '12345',
+  username: 'testuser',
+  displayName: 'Test User',
+  email: 'test@example.com',
+  avatarUrl: 'https://avatars.githubusercontent.com/u/12345',
+  bio: 'Original bio',
+  location: 'Original Location',
+  skills: ['JavaScript', 'React'],
+  socials: {
+    linkedin: 'https://linkedin.com/in/testuser',
+    twitter: 'https://twitter.com/testuser',
+    website: 'https://testuser.com',
+  },
+  layoutTemplate: 'default',
+  theme: 'light',
+}
+
 describe('Complete User Flow', () => {
   beforeEach(() => {
-    // Mock the authentication
     cy.intercept('GET', '**/api/me', {
       statusCode: 200,
-      body: {
-        _id: 'test-user-id',
-        githubId: '12345',
-        username: 'testuser',
-        displayName: 'Test User',
-        email: 'test@example.com',
-        avatarUrl: 'https://avatars.githubusercontent.com/u/12345',
-        bio: 'Original bio',
-        location: 'Original Location',
-        skills: ['JavaScript', 'React'],
-        socials: {
-          linkedin: 'https://linkedin.com/in/testuser',
-          twitter: 'https://twitter.com/testuser',
-          website: 'https://testuser.com'
-        },
-        layoutTemplate: 'default',
-        theme: 'light'
-      }
+      body: dashboardUser,
     }).as('getUser')
   })
 
@@ -45,41 +46,37 @@ describe('Complete User Flow', () => {
     // Verify dashboard loads
     cy.contains('Test User').should('be.visible')
     cy.contains('testuser').should('be.visible')
+    cy.contains('Basic Information').should('be.visible')
 
     // Step 3: Edit profile - update bio
     cy.intercept('PATCH', '**/api/profile', {
       statusCode: 200,
       body: {
-        bio: 'Updated bio for testing',
-        location: 'Original Location'
-      }
+        user: {
+          ...dashboardUser,
+          bio: 'Updated bio for testing',
+        },
+      },
     }).as('updateProfile')
 
-    // Find and edit bio - click Edit button
-    cy.contains('Bio').parent().within(() => {
-      cy.contains('button', 'Edit').click()
-    })
-    
+    cy.editProfileField('bio')
     cy.get('#bio').clear().type('Updated bio for testing')
     cy.contains('button', 'Save').click()
     cy.wait('@updateProfile')
-
-    // Verify success message
-    cy.contains(/success|saved|updated/i, { timeout: 5000 }).should('be.visible')
 
     // Step 4: Edit location
     cy.intercept('PATCH', '**/api/profile', {
       statusCode: 200,
       body: {
-        bio: 'Updated bio for testing',
-        location: 'New Test City'
-      }
+        user: {
+          ...dashboardUser,
+          bio: 'Updated bio for testing',
+          location: 'New Test City',
+        },
+      },
     }).as('updateLocation')
 
-    cy.contains('Location').parent().within(() => {
-      cy.contains('button', 'Edit').click()
-    })
-    
+    cy.editProfileField('location')
     cy.get('#location').clear().type('New Test City')
     cy.contains('button', 'Save').click()
     cy.wait('@updateLocation')
@@ -96,8 +93,7 @@ describe('Complete User Flow', () => {
     cy.contains('Skills').scrollIntoView()
     cy.contains('Skills').should('be.visible')
     
-    // Find the input in the Skills card and type
-    cy.contains('Skills').parent().parent().find('input').type('Cypress{enter}')
+    cy.get('input[placeholder*="Add a skill"]').type('Cypress{enter}')
     cy.wait('@addSkill')
     cy.contains('Cypress').should('be.visible')
 

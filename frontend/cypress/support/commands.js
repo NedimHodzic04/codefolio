@@ -42,6 +42,15 @@ Cypress.Commands.add('waitForApi', (alias) => {
   cy.wait(`@${alias}`)
 })
 
+// Click the profile field Edit control without matching bio/location body text
+Cypress.Commands.add('editProfileField', (fieldId) => {
+  cy.get(`label[for="${fieldId}"]`)
+    .parents('.space-y-2')
+    .first()
+    .contains('button', /^Edit$/)
+    .click()
+})
+
 // Custom command to mock projects API
 Cypress.Commands.add('mockProjects', (projects = null) => {
   if (!projects) {

@@ -11,7 +11,7 @@ import EducationSection from "@/components/EducationSection";
 import AppearanceSection from "@/components/AppearanceSection";
 
 export default function Dashboard() {
-  const { user, loading } = useAuth();
+  const { user, loading, refreshUser, setUser } = useAuth();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("profile");
   const [currentUser, setCurrentUser] = useState(user);
@@ -20,10 +20,13 @@ export default function Dashboard() {
     if (!loading && !user) {
       navigate("/login");
     }
-    if (user) {
-      setCurrentUser(user);
-    }
   }, [user, loading, navigate]);
+
+  useEffect(() => {
+    refreshUser().then((data) => {
+      if (data) setCurrentUser(data);
+    });
+  }, [refreshUser]);
 
   if (loading) {
     return (
@@ -65,7 +68,10 @@ export default function Dashboard() {
 
   const handleUserUpdate = (updatedUser) => {
     setCurrentUser(updatedUser);
+    setUser(updatedUser);
   };
+
+  const dashboardUser = currentUser ?? user;
 
   return (
     <div className="min-h-screen bg-background">
@@ -154,16 +160,16 @@ export default function Dashboard() {
 
               {/* Section Content */}
               {activeSection === "profile" && (
-                <ProfileSection user={currentUser} onUpdate={handleUserUpdate} />
+                <ProfileSection user={dashboardUser} onUpdate={handleUserUpdate} />
               )}
               {activeSection === "projects" && (
-                <ProjectsSection user={currentUser} />
+                <ProjectsSection user={dashboardUser} />
               )}
               {activeSection === "education" && (
-                <EducationSection user={currentUser} />
+                <EducationSection user={dashboardUser} />
               )}
               {activeSection === "appearance" && (
-                <AppearanceSection user={currentUser} />
+                <AppearanceSection user={dashboardUser} onUpdate={handleUserUpdate} />
               )}
             </div>
           </main>

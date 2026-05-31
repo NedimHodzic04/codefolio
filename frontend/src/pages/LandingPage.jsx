@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-zinc-50">
+    <div className="min-h-screen bg-background">
       <main className="mx-auto w-full max-w-5xl px-4 py-10 md:py-16">
         <section className="space-y-6">
           <div>
@@ -33,7 +33,7 @@ export default function LandingPage() {
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
               Your developer portfolio, generated from GitHub.
             </h1>
-            <p className="max-w-2xl text-base text-zinc-600 sm:text-lg">
+            <p className="max-w-2xl text-base text-muted-foreground sm:text-lg">
               Codefolio pulls your profile and repos, then lets you publish a clean
               portfolio page you can share in minutes.
             </p>
@@ -57,7 +57,7 @@ export default function LandingPage() {
                 <CardHeader>
                   <CardTitle className="text-lg">Import projects</CardTitle>
                 </CardHeader>
-                <CardContent className="text-sm text-zinc-600">
+                <CardContent className="text-sm text-muted-foreground">
                   Pull recent repositories and display them with links and language tags.
                 </CardContent>
               </Card>
@@ -66,7 +66,7 @@ export default function LandingPage() {
                 <CardHeader>
                   <CardTitle className="text-lg">Add skills</CardTitle>
                 </CardHeader>
-                <CardContent className="text-sm text-zinc-600">
+                <CardContent className="text-sm text-muted-foreground">
                   Curate a skills list so visitors see your stack immediately.
                 </CardContent>
               </Card>
@@ -75,8 +75,8 @@ export default function LandingPage() {
                 <CardHeader>
                   <CardTitle className="text-lg">Share your URL</CardTitle>
                 </CardHeader>
-                <CardContent className="text-sm text-zinc-600">
-                  Publish at <span className="font-medium text-zinc-900">/your-username</span>{" "}
+                <CardContent className="text-sm text-muted-foreground">
+                  Publish at <span className="font-medium text-foreground">/your-username</span>{" "}
                   and keep it updated as you build.
                 </CardContent>
               </Card>
@@ -89,7 +89,7 @@ export default function LandingPage() {
             <CardContent className="flex flex-col items-start justify-between gap-4 p-6 sm:flex-row sm:items-center">
               <div className="space-y-1">
                 <div className="text-lg font-semibold">Ready to ship your portfolio?</div>
-                <div className="text-sm text-zinc-600">
+                <div className="text-sm text-muted-foreground">
                   Sign in with GitHub and you’ll be redirected to your dashboard.
                 </div>
               </div>

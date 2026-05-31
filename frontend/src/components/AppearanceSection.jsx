@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
@@ -32,36 +32,60 @@ const THEMES = [
   {
     id: "light",
     name: "Light",
-    description: "Bright and clean appearance",
-    colors: ["#ffffff", "#f8f9fa", "#e9ecef"],
+    description: "Clean white with blue accents",
+    colors: ["hsl(0 0% 100%)", "hsl(221 83% 53%)", "hsl(210 40% 96%)"],
   },
   {
     id: "dark",
     name: "Dark",
-    description: "Easy on the eyes with dark backgrounds",
-    colors: ["#1a1a1a", "#2d2d2d", "#404040"],
+    description: "Deep navy with sky blue primary",
+    colors: ["hsl(222 47% 11%)", "hsl(199 89% 48%)", "hsl(217 33% 17%)"],
   },
   {
-    id: "blue",
-    name: "Blue",
-    description: "Professional blue color scheme",
-    colors: ["#e3f2fd", "#2196f3", "#1976d2"],
+    id: "midnight",
+    name: "Midnight",
+    description: "Dark blue-purple with violet tones",
+    colors: ["hsl(240 21% 15%)", "hsl(263 70% 60%)", "hsl(240 18% 20%)"],
+  },
+  {
+    id: "nord",
+    name: "Nord",
+    description: "Cool grey-blue with muted colors",
+    colors: ["hsl(220 16% 96%)", "hsl(213 32% 52%)", "hsl(220 13% 91%)"],
+  },
+  {
+    id: "green",
+    name: "Green",
+    description: "Terminal aesthetic with green accents",
+    colors: ["hsl(0 0% 8%)", "hsl(142 76% 36%)", "hsl(0 0% 12%)"],
+  },
+  {
+    id: "rose",
+    name: "Rose",
+    description: "Warm pink with rose-red primary",
+    colors: ["hsl(340 100% 98%)", "hsl(346 77% 50%)", "hsl(340 100% 95%)"],
   },
   {
     id: "purple",
     name: "Purple",
-    description: "Creative purple color palette",
-    colors: ["#f3e5f5", "#9c27b0", "#7b1fa2"],
+    description: "Soft purple with deep violet primary",
+    colors: ["hsl(270 50% 98%)", "hsl(262 83% 58%)", "hsl(270 60% 95%)"],
   },
 ];
 
-export default function AppearanceSection({ user }) {
+export default function AppearanceSection({ user, onUpdate }) {
   const [selectedLayout, setSelectedLayout] = useState(user?.layoutTemplate || "default");
   const [selectedTheme, setSelectedTheme] = useState(user?.theme || "light");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const apiUrl = import.meta.env.VITE_API_URL;
+
+  useEffect(() => {
+    if (!user) return;
+    setSelectedLayout(user.layoutTemplate || "default");
+    setSelectedTheme(user.theme || "light");
+  }, [user?.layoutTemplate, user?.theme]);
 
   const handleSaveAppearance = async () => {
     setLoading(true);
@@ -81,7 +105,15 @@ export default function AppearanceSection({ user }) {
         throw new Error(data.message || "Failed to update appearance");
       }
 
+      const data = await response.json();
       toast.success("Appearance updated successfully");
+      if (onUpdate) {
+        onUpdate({
+          ...user,
+          layoutTemplate: data.layoutTemplate,
+          theme: data.theme,
+        });
+      }
     } catch (err) {
       toast.error(err.message);
     } finally {
