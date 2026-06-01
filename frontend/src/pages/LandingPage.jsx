@@ -280,7 +280,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-background">
       <main>
-        <section className="pt-8 pb-16 md:pb-20 md:pt-12">
+        <section className="pt-16 pb-16 md:pb-20 md:pt-16">
           <div className="mx-auto max-w-6xl px-6">
             <div className="grid min-h-0 grid-cols-1 items-center gap-12 md:grid-cols-12 md:gap-10 lg:gap-14">
               <div className="max-w-xl space-y-6 md:col-span-7">

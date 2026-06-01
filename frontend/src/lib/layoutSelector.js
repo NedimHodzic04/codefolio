@@ -29,7 +29,14 @@ const LAYOUT_MIGRATION = {
 function normalizeLayout(layoutTemplate) {
   if (!layoutTemplate) return "spotlight";
   const normalized = layoutTemplate.toLowerCase();
-  return LAYOUT_MIGRATION[normalized] || normalized;
+  if (Object.hasOwn(LAYOUT_MIGRATION, normalized)) {
+    return LAYOUT_MIGRATION[normalized];
+  }
+  return normalized;
+}
+
+function isKnownLayout(layoutKey) {
+  return typeof layoutKey === "string" && Object.hasOwn(layouts, layoutKey);
 }
 
 /**
@@ -41,11 +48,11 @@ export function getLayoutComponent(layoutTemplate) {
   // Normalize old values to new values
   const normalizedLayout = normalizeLayout(layoutTemplate);
   
-  if (!layouts[normalizedLayout]) {
+  if (!isKnownLayout(normalizedLayout)) {
     console.warn(`Invalid layout template "${layoutTemplate}", falling back to "spotlight"`);
     return layouts.spotlight;
   }
-  
+
   return layouts[normalizedLayout];
 }
 
@@ -63,5 +70,6 @@ export function getAvailableLayouts() {
  * @returns {boolean} True if layout exists
  */
 export function isValidLayout(layoutTemplate) {
-  return layouts.hasOwnProperty(layoutTemplate?.toLowerCase());
+  const normalized = normalizeLayout(layoutTemplate);
+  return isKnownLayout(normalized);
 }
