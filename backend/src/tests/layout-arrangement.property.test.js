@@ -18,12 +18,12 @@ const layouts = {
 
 function getLayoutComponent(layoutTemplate) {
   const normalizedLayout = layoutTemplate?.toLowerCase();
-  
-  if (!normalizedLayout || !layouts[normalizedLayout]) {
+
+  if (!normalizedLayout || !VALID_LAYOUTS.includes(normalizedLayout)) {
     console.warn(`Invalid layout template "${layoutTemplate}", falling back to "default"`);
     return layouts.default;
   }
-  
+
   return layouts[normalizedLayout];
 }
 
