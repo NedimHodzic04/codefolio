@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu } from "lucide-react";
+import { Menu, User } from "lucide-react";
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -11,53 +11,196 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
   SheetContent,
-  SheetTrigger,
   SheetTitle,
+  SheetTrigger,
 } from "@/components/ui/sheet";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 
-export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
-  const { user } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+const navLinks = [
+  { title: "Home", href: "/" },
+  { title: "Showcase", href: "/showcase" },
+];
 
-  const navLinks = [
-    { title: "Home", href: "/" },
-    { title: "Showcase", href: "/showcase" },
-  ];
+function NavLink({ to, children }) {
+  return (
+    <Button variant="ghost" className="h-9 px-3" asChild>
+      <Link to={to}>{children}</Link>
+    </Button>
+  );
+}
+
+function MobileNavLink({ to, children, onNavigate }) {
+  return (
+    <Button
+      variant="ghost"
+      className="h-11 w-full justify-start px-3 text-base font-medium"
+      asChild
+    >
+      <Link to={to} onClick={onNavigate}>
+        {children}
+      </Link>
+    </Button>
+  );
+}
+
+function ProfileControl() {
+  const { user } = useAuth();
+
+  if (user) {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            className="rounded-full ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            <Avatar className="h-8 w-8 cursor-pointer">
+              <AvatarImage src={user.avatarUrl} alt={user.displayName} />
+              <AvatarFallback>{user.displayName?.[0]}</AvatarFallback>
+            </Avatar>
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-48">
+          <div className="px-2 py-1.5 text-sm font-medium">{user.displayName}</div>
+          <div className="px-2 pb-1.5 text-xs text-muted-foreground">
+            @{user.username}
+          </div>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem asChild>
+            <Link to="/dashboard">Dashboard</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to={`/${user.username}`}>My Portfolio</Link>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem asChild>
+            <a href={`${import.meta.env.VITE_API_URL}/auth/logout`}>Logout</a>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex justify-center">
-      <div className="container flex h-14 items-center justify-between px-4">
-        {/* Logo */}
+    <Button variant="ghost" size="icon" className="h-9 w-9" asChild>
+      <Link to="/login" aria-label="Sign in">
+        <User className="h-5 w-5" />
+      </Link>
+    </Button>
+  );
+}
+
+function MobileMenu({ isOpen, onOpenChange }) {
+  const { user } = useAuth();
+  const close = () => onOpenChange(false);
+
+  return (
+    <Sheet open={isOpen} onOpenChange={onOpenChange}>
+      <SheetTrigger asChild>
+        <Button variant="ghost" size="icon" className="h-9 w-9">
+          <Menu className="h-5 w-5" />
+          <span className="sr-only">Toggle menu</span>
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="right" className="w-[280px] gap-0 p-0">
+        <SheetTitle className="sr-only">Navigation menu</SheetTitle>
+        <div className="flex flex-col px-4 pb-6 pt-14">
+          {user && (
+            <>
+              <div className="flex items-center gap-3 px-3 py-2">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={user.avatarUrl} alt={user.displayName} />
+                  <AvatarFallback>{user.displayName?.[0]}</AvatarFallback>
+                </Avatar>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">{user.displayName}</p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    @{user.username}
+                  </p>
+                </div>
+              </div>
+              <Separator className="my-3" />
+            </>
+          )}
+
+          <nav className="flex flex-col gap-1">
+            {navLinks.map((link) => (
+              <MobileNavLink key={link.href} to={link.href} onNavigate={close}>
+                {link.title}
+              </MobileNavLink>
+            ))}
+          </nav>
+
+          <Separator className="my-4" />
+
+          <div className="flex flex-col gap-2">
+            {user ? (
+              <>
+                <Button className="w-full" asChild>
+                  <Link to="/dashboard" onClick={close}>
+                    Dashboard
+                  </Link>
+                </Button>
+                <Button variant="outline" className="w-full" asChild>
+                  <Link to={`/${user.username}`} onClick={close}>
+                    My Portfolio
+                  </Link>
+                </Button>
+                <Button variant="ghost" className="w-full" asChild>
+                  <a href={`${import.meta.env.VITE_API_URL}/auth/logout`}>
+                    Logout
+                  </a>
+                </Button>
+              </>
+            ) : (
+              <Button className="w-full" asChild>
+                <Link to="/login" onClick={close}>
+                  Sign in
+                </Link>
+              </Button>
+            )}
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+export default function Navbar() {
+  const [isOpen, setIsOpen] = useState(false);
+  const { toggleTheme } = useTheme();
+
+  return (
+    <header className="sticky top-0 z-50 w-full border-b bg-background">
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
         <Link className="flex items-center space-x-2" to="/">
-          <img src="/favicon-light.svg" className="h-6 w-6 dark:hidden" alt="logo" />
-          <img src="/favicon-dark.svg" className="h-6 w-6 hidden dark:block" alt="logo" />
+          <img
+            src="/favicon-light.svg"
+            className="h-6 w-6 dark:hidden"
+            alt=""
+          />
+          <img
+            src="/favicon-dark.svg"
+            className="hidden h-6 w-6 dark:block"
+            alt=""
+          />
           <span className="font-bold">Codefolio</span>
         </Link>
 
-        {/*test*/}
+        <div className="flex items-center gap-1">
+          <nav className="hidden items-center md:flex">
+            {navLinks.map((link) => (
+              <NavLink key={link.href} to={link.href}>
+                {link.title}
+              </NavLink>
+            ))}
+          </nav>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-          {navLinks.map((link) => (
-            <Link
-              key={link.title}
-              to={link.href}
-              className="transition-colors hover:text-primary text-muted-foreground"
-            >
-              {link.title}
-            </Link>
-          ))}
-        </nav>
-
-        {/* Right side */}
-        <div className="flex items-center gap-2">
-          {/* Theme Toggle */}
           <Button
             variant="ghost"
             size="icon"
@@ -69,95 +212,12 @@ export default function Navbar() {
             <span className="sr-only">Toggle theme</span>
           </Button>
 
-          {/* Desktop */}
-          <div className="hidden md:flex items-center gap-2">{user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="rounded-full ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                    <Avatar className="h-8 w-8 cursor-pointer">
-                      <AvatarImage src={user.avatarUrl} alt={user.displayName} />
-                      <AvatarFallback>{user.displayName?.[0]}</AvatarFallback>
-                    </Avatar>
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <div className="px-2 py-1.5 text-sm font-medium">{user.displayName}</div>
-                  <div className="px-2 pb-1.5 text-xs text-muted-foreground">@{user.username}</div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link to="/dashboard">Dashboard</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to={`/${user.username}`}>My Portfolio</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <a href={`${import.meta.env.VITE_API_URL}/auth/logout`}>Logout</a>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Button asChild>
-                <Link to="/login">Join for Free</Link>
-              </Button>
-            )}
+          <div className="hidden md:block">
+            <ProfileControl />
           </div>
 
-          {/* Mobile Sheet */}
           <div className="md:hidden">
-            <Sheet open={isOpen} onOpenChange={setIsOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="px-0 hover:bg-transparent">
-                  <Menu className="h-6 w-6" />
-                  <span className="sr-only">Toggle Menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[250px] pt-12">
-                <SheetTitle className="sr-only">Menu</SheetTitle>
-                <nav className="flex flex-col gap-4">
-                  {user && (
-                    <div className="flex items-center gap-3 pb-2">
-                      <Avatar className="h-9 w-9">
-                        <AvatarImage src={user.avatarUrl} alt={user.displayName} />
-                        <AvatarFallback>{user.displayName?.[0]}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-sm font-medium">{user.displayName}</p>
-                        <p className="text-xs text-muted-foreground">@{user.username}</p>
-                      </div>
-                    </div>
-                  )}
-                  {navLinks.map((link) => (
-                    <Link
-                      key={link.title}
-                      to={link.href}
-                      className="text-lg font-medium"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      {link.title}
-                    </Link>
-                  ))}
-                  <hr className="my-2" />
-                  {user ? (
-                    <>
-                      <Button asChild className="w-full">
-                        <Link to="/dashboard" onClick={() => setIsOpen(false)}>Dashboard</Link>
-                      </Button>
-                      <Button asChild variant="outline" className="w-full">
-                        <Link to={`/${user.username}`} onClick={() => setIsOpen(false)}>My Portfolio</Link>
-                      </Button>
-                      <Button asChild variant="ghost" className="w-full">
-                        <a href={`${import.meta.env.VITE_API_URL}/auth/logout`}>Logout</a>
-                      </Button>
-                    </>
-                  ) : (
-                    <Button asChild className="w-full">
-                      <Link to="/login" onClick={() => setIsOpen(false)}>Join for Free</Link>
-                    </Button>
-                  )}
-                </nav>
-              </SheetContent>
-            </Sheet>
+            <MobileMenu isOpen={isOpen} onOpenChange={setIsOpen} />
           </div>
         </div>
       </div>

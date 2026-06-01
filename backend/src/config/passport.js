@@ -6,6 +6,19 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+function profileFromGitHub(profile) {
+  const json = profile._json || {};
+
+  return {
+    username: profile.username,
+    displayName: profile.displayName || profile.username,
+    avatarUrl: json.avatar_url,
+    bio: json.bio || undefined,
+    email: json.email || undefined,
+    location: json.location || undefined,
+  };
+}
+
 passport.use(
   new GitHubStrategy(
     {
@@ -16,24 +29,39 @@ passport.use(
     async (accessToken, refreshToken, profile, done) => {
       try {
         let user = await User.findOne({ githubId: profile.id });
+        const githubProfile = profileFromGitHub(profile);
 
         if (!user) {
           user = await User.create({
             githubId: profile.id,
-            username: profile.username,
-            displayName: profile.displayName || profile.username,
-            avatarUrl: profile._json.avatar_url,
-            bio: profile._json.bio,
-            email: profile._json.email,
+            ...githubProfile,
+            bio: githubProfile.bio || "Student Developer",
             githubAccessToken: accessToken,
           });
 
           // Only fetch repos on initial sign-up
           await fetchAndSaveRepos(accessToken, user._id);
         } else {
-          // Update access token on each login
-          await User.findByIdAndUpdate(user._id, {
+          const updateData = {
             githubAccessToken: accessToken,
+            avatarUrl: githubProfile.avatarUrl,
+            displayName: githubProfile.displayName,
+          };
+
+          if (githubProfile.email) {
+            updateData.email = githubProfile.email;
+          }
+
+          // Fill from GitHub when the user has not set these locally
+          if (githubProfile.bio && !user.bio?.trim()) {
+            updateData.bio = githubProfile.bio;
+          }
+          if (githubProfile.location && !user.location?.trim()) {
+            updateData.location = githubProfile.location;
+          }
+
+          user = await User.findByIdAndUpdate(user._id, updateData, {
+            new: true,
           });
         }
 

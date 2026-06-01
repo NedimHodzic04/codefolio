@@ -1,105 +1,430 @@
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { GitHubLogoIcon } from "@radix-ui/react-icons";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import previewClassicLight from "@/assets/preview-classic-light.png";
+import previewMinimalGreen from "@/assets/preview-minimal-green.png";
+import previewModernDark from "@/assets/preview-modern-dark.png";
 
-export default function LandingPage() {
+const githubAuthUrl = `${import.meta.env.VITE_API_URL}/auth/github/`;
+const GITHUB_REPO_URL = "https://github.com/NedimHodzic04/codefolio";
+const BUILDER_PORTFOLIO_PATH = "/NedimHodzic04";
+
+const previewGlob = import.meta.glob("../assets/preview-*.png", {
+  eager: true,
+  import: "default",
+});
+
+
+
+const PREVIEWS = [
+  { src: previewClassicLight, alt: "Default layout · Light theme" },
+  { src: previewModernDark, alt: "Modern layout · Dark theme" },
+  { src: previewMinimalGreen, alt: "Minimal layout · Green theme" },
+];
+
+const HOW_IT_WORKS_STEPS = [
+  {
+    number: "01",
+    heading: "Sign in with GitHub",
+    body: "One click and we pull everything in — your profile, bio, location, and every public repository you've built.",
+  },
+  {
+    number: "02",
+    heading: "Curate what gets shown",
+    body: "Hide repos you don't want featured, add a tech stack, mark your best work. Takes two minutes, makes a real difference.",
+  },
+  {
+    number: "03",
+    heading: "Share your URL",
+    body: "Your portfolio is live at code-folio.app/username the moment you sign in. Send it to recruiters, drop it in your bio, put it on your CV.",
+  },
+];
+
+function getReducedMotion() {
   return (
-    <div className="min-h-screen bg-background">
-      <main className="mx-auto w-full max-w-5xl px-4 py-10 md:py-16">
-        <section className="space-y-6">
-          <div>
-            <img
-              src="/logo-light.svg"
-              className="h-12 w-auto dark:hidden"
-              alt="Codefolio"
-            />
-            <img
-              src="/logo-dark.svg"
-              className="hidden h-12 w-auto dark:block"
-              alt="Codefolio"
-            />
-          </div>
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
 
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="secondary">Shadcn UI</Badge>
-            <Badge variant="outline">GitHub Sign-in</Badge>
-            <Badge variant="outline">Public portfolio URL</Badge>
-          </div>
+function motionStyle(visible, reducedMotion, delayMs = 0, offsetY = 16) {
+  if (reducedMotion) {
+    return { opacity: 1, transform: "translateY(0)" };
+  }
 
-          <div className="space-y-3">
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-              Your developer portfolio, generated from GitHub.
-            </h1>
-            <p className="max-w-2xl text-base text-muted-foreground sm:text-lg">
-              Codefolio pulls your profile and repos, then lets you publish a clean
-              portfolio page you can share in minutes.
+  return {
+    opacity: visible ? 1 : 0,
+    transform: visible ? "translateY(0)" : `translateY(${offsetY}px)`,
+    transition: `opacity 700ms ease-out ${delayMs}ms, transform 700ms ease-out ${delayMs}ms`,
+  };
+}
+
+function useInView(reducedMotion, threshold = 0.15) {
+  const [inView, setInView] = useState(reducedMotion);
+  const observerRef = useRef(null);
+
+  const ref = useCallback(
+    (node) => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
+
+      if (!node) return;
+
+      if (reducedMotion) {
+        setInView(true);
+        return;
+      }
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) setInView(true);
+        },
+        { threshold, rootMargin: "0px 0px -8% 0px" },
+      );
+
+      observer.observe(node);
+      observerRef.current = observer;
+
+      requestAnimationFrame(() => {
+        const rect = node.getBoundingClientRect();
+        const viewHeight = window.innerHeight || document.documentElement.clientHeight;
+        if (rect.top < viewHeight && rect.bottom > 0) {
+          setInView(true);
+        }
+      });
+    },
+    [reducedMotion, threshold],
+  );
+
+  useEffect(() => () => observerRef.current?.disconnect(), []);
+
+  return [ref, inView];
+}
+
+function GitHubIcon({ className }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden
+      className={className}
+    >
+      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
+    </svg>
+  );
+}
+
+function PreviewImage({ src, alt, active }) {
+  const [resolvedSrc, setResolvedSrc] = useState(src);
+
+  useEffect(() => {
+    setResolvedSrc(src);
+  }, [src]);
+
+  return (
+    <img
+      src={resolvedSrc}
+      alt={alt}
+      className={cn(
+        "absolute inset-0 h-full w-full object-cover object-top transition-opacity duration-1000 ease-in-out",
+        active ? "opacity-100" : "opacity-0",
+      )}
+      onError={() => setResolvedSrc(previewDefaultLight)}
+    />
+  );
+}
+
+function CrossfadeMockup({ contentHeightClass, wrapperClassName }) {
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setActiveIndex((i) => (i + 1) % PREVIEWS.length);
+    }, 3000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  return (
+    <div className={wrapperClassName}>
+      <div className="w-full overflow-hidden rounded-xl border border-border/50 shadow-2xl md:w-[580px]">
+        <div className="flex h-8 items-center gap-1.5 bg-muted/80 px-3 backdrop-blur-sm">
+          <span className="h-2 w-2 rounded-full bg-red-400/70" aria-hidden />
+          <span className="h-2 w-2 rounded-full bg-yellow-400/70" aria-hidden />
+          <span className="h-2 w-2 rounded-full bg-green-400/70" aria-hidden />
+          <div className="mx-3 flex h-5 flex-1 items-center justify-center rounded-full bg-background/60 px-2">
+            <span className="truncate text-xs text-muted-foreground">
+              code-folio.app/username
+            </span>
+          </div>
+        </div>
+        <div
+          className={cn(
+            "relative overflow-hidden rounded-b-xl",
+            contentHeightClass,
+          )}
+          aria-live="polite"
+        >
+          {PREVIEWS.map((preview, index) => (
+            <PreviewImage
+              key={preview.alt}
+              src={preview.src}
+              alt={preview.alt}
+              active={index === activeIndex}
+            />
+          ))}
+        </div>
+      </div>
+      <p className="mt-3 text-center text-xs text-muted-foreground">
+        {PREVIEWS[activeIndex].alt}
+      </p>
+    </div>
+  );
+}
+
+function LandingFooter() {
+  return (
+    <footer className="border-t py-12">
+      <div className="mx-auto max-w-6xl px-6">
+        <div className="flex flex-col gap-8 md:flex-row">
+          <div className="flex-1 space-y-2">
+            <Link className="flex w-fit items-center space-x-2" to="/">
+              <img
+                src="/favicon-light.svg"
+                className="h-6 w-6 dark:hidden"
+                alt=""
+              />
+              <img
+                src="/favicon-dark.svg"
+                className="hidden h-6 w-6 dark:block"
+                alt=""
+              />
+              <span className="font-bold">Codefolio</span>
+            </Link>
+            <p className="text-sm text-muted-foreground">
+              Developer portfolio generator, powered by GitHub.
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Button asChild className="py-6 text-base">
-              <Link to="/login">
-                <GitHubLogoIcon className="mr-2 h-5 w-5" />
-                Get started with GitHub
+          <div className="flex flex-1 flex-col items-start md:items-center md:text-center">
+            <nav className="flex flex-wrap gap-6">
+              <Link
+                to="/"
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Home
               </Link>
-            </Button>
-            <Button asChild variant="outline" className="py-6 text-base">
-              <a href="/showcase">Browse showcase</a>
-            </Button>
+              <Link
+                to="/showcase"
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Showcase
+              </Link>
+              <a
+                href={GITHUB_REPO_URL}
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                GitHub
+              </a>
+            </nav>
           </div>
 
-          <div className="pt-6">
-            <div className="grid gap-4 md:grid-cols-3">
-              <Card className="shadow-lg">
-                <CardHeader>
-                  <CardTitle className="text-lg">Import projects</CardTitle>
-                </CardHeader>
-                <CardContent className="text-sm text-muted-foreground">
-                  Pull recent repositories and display them with links and language tags.
-                </CardContent>
-              </Card>
+          <div className="flex flex-1 flex-col items-start md:items-end md:text-right">
+            <p className="text-sm text-muted-foreground">
+              Built by{" "}
+              <Link
+                to={BUILDER_PORTFOLIO_PATH}
+                className="text-sm font-medium text-foreground hover:underline"
+              >
+                Nedim Hodžić
+              </Link>
+            </p>
+          </div>
+        </div>
 
-              <Card className="shadow-lg">
-                <CardHeader>
-                  <CardTitle className="text-lg">Add skills</CardTitle>
-                </CardHeader>
-                <CardContent className="text-sm text-muted-foreground">
-                  Curate a skills list so visitors see your stack immediately.
-                </CardContent>
-              </Card>
+        <div className="mt-8 border-t pt-8 text-center">
+          <p className="text-xs text-muted-foreground">© 2026 Codefolio</p>
+        </div>
+      </div>
+    </footer>
+  );
+}
 
-              <Card className="shadow-lg">
-                <CardHeader>
-                  <CardTitle className="text-lg">Share your URL</CardTitle>
-                </CardHeader>
-                <CardContent className="text-sm text-muted-foreground">
-                  Publish at <span className="font-medium text-foreground">/your-username</span>{" "}
-                  and keep it updated as you build.
-                </CardContent>
-              </Card>
+export default function LandingPage() {
+  const [reducedMotion] = useState(getReducedMotion);
+  const [mounted, setMounted] = useState(() => getReducedMotion());
+  const [howRef, howInView] = useInView(reducedMotion);
+  const [step1Ref, step1InView] = useInView(reducedMotion);
+  const [step2Ref, step2InView] = useInView(reducedMotion);
+  const [step3Ref, step3InView] = useInView(reducedMotion);
+  const [ctaRef, ctaInView] = useInView(reducedMotion);
+
+  useEffect(() => {
+    if (reducedMotion) {
+      setMounted(true);
+      return;
+    }
+
+    const timer = window.setTimeout(() => setMounted(true), 50);
+    return () => window.clearTimeout(timer);
+  }, [reducedMotion]);
+
+  const showHero = reducedMotion || mounted;
+
+  return (
+    <div className="min-h-screen overflow-x-hidden bg-background">
+      <main>
+        <section className="pt-8 pb-16 md:pb-20 md:pt-12">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="grid min-h-0 grid-cols-1 items-center gap-12 md:grid-cols-12 md:gap-10 lg:gap-14">
+              <div className="max-w-xl space-y-6 md:col-span-7">
+                <div style={motionStyle(showHero, reducedMotion, 0)}>
+                  <Badge>Free to use · No coding required</Badge>
+                </div>
+
+                <h1
+                  className="text-5xl font-extrabold tracking-tight md:text-6xl lg:text-7xl"
+                  style={motionStyle(showHero, reducedMotion, 100)}
+                >
+                  Your developer portfolio, generated from GitHub.
+                </h1>
+
+                <p
+                  className="text-muted-foreground"
+                  style={motionStyle(showHero, reducedMotion, 200)}
+                >
+                  Sign in once, get a portfolio you can share in minutes. Built
+                  from your GitHub profile and repos — no setup, no templates to
+                  fill out.
+                </p>
+
+                <div style={motionStyle(showHero, reducedMotion, 300)}>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <Button asChild size="lg">
+                      <a href={githubAuthUrl}>
+                        <GitHubIcon className="mr-2 h-5 w-5" />
+                        Get started with GitHub
+                      </a>
+                    </Button>
+                    <Button asChild variant="outline" size="lg">
+                      <Link to="/showcase">Browse showcase</Link>
+                    </Button>
+                  </div>
+                </div>
+
+                <p
+                  className="text-sm text-muted-foreground"
+                  style={motionStyle(showHero, reducedMotion, 400)}
+                >
+                  Built for developers who'd rather ship than design.
+                </p>
+
+                <div
+                  className="md:hidden"
+                  style={motionStyle(showHero, reducedMotion, 450, 12)}
+                >
+                  <CrossfadeMockup
+                    contentHeightClass="h-[280px]"
+                    wrapperClassName="w-full max-w-full"
+                  />
+                </div>
+              </div>
+
+              <div
+                className="hidden md:col-span-5 md:block"
+                style={motionStyle(showHero, reducedMotion, 450, 12)}
+              >
+                <CrossfadeMockup
+                  contentHeightClass="h-[420px]"
+                  wrapperClassName="ml-auto w-full max-w-[580px]"
+                />
+              </div>
             </div>
           </div>
         </section>
 
-        <section className="mt-12">
-          <Card className="shadow-lg">
-            <CardContent className="flex flex-col items-start justify-between gap-4 p-6 sm:flex-row sm:items-center">
-              <div className="space-y-1">
-                <div className="text-lg font-semibold">Ready to ship your portfolio?</div>
-                <div className="text-sm text-muted-foreground">
-                  Sign in with GitHub and you’ll be redirected to your dashboard.
-                </div>
+        <section className="px-6 pt-24 pb-32 md:pt-32">
+          <div className="mx-auto max-w-6xl">
+            <div ref={howRef} style={motionStyle(howInView, reducedMotion)}>
+              <p className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+                How it works
+              </p>
+              <h2 className="mt-3 text-3xl font-bold md:text-4xl">
+                From GitHub to portfolio in minutes.
+              </h2>
+              <p className="mt-4 max-w-xl text-muted-foreground">
+                No forms to fill. No design decisions to make. Just sign in and
+                your portfolio is ready to share.
+              </p>
+            </div>
+
+            <div className="mt-16 grid grid-cols-1 gap-12 md:grid-cols-3">
+              <div ref={step1Ref} style={motionStyle(step1InView, reducedMotion, 0)}>
+                <span className="text-5xl font-bold text-muted-foreground/20">
+                  {HOW_IT_WORKS_STEPS[0].number}
+                </span>
+                <h3 className="mt-4 text-lg font-semibold">
+                  {HOW_IT_WORKS_STEPS[0].heading}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {HOW_IT_WORKS_STEPS[0].body}
+                </p>
               </div>
-              <Button asChild>
-                <Link to="/login">Join for free</Link>
-              </Button>
-            </CardContent>
-          </Card>
+              <div ref={step2Ref} style={motionStyle(step2InView, reducedMotion, 150)}>
+                <span className="text-5xl font-bold text-muted-foreground/20">
+                  {HOW_IT_WORKS_STEPS[1].number}
+                </span>
+                <h3 className="mt-4 text-lg font-semibold">
+                  {HOW_IT_WORKS_STEPS[1].heading}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {HOW_IT_WORKS_STEPS[1].body}
+                </p>
+              </div>
+              <div ref={step3Ref} style={motionStyle(step3InView, reducedMotion, 300)}>
+                <span className="text-5xl font-bold text-muted-foreground/20">
+                  {HOW_IT_WORKS_STEPS[2].number}
+                </span>
+                <h3 className="mt-4 text-lg font-semibold">
+                  {HOW_IT_WORKS_STEPS[2].heading}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {HOW_IT_WORKS_STEPS[2].body}
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-muted py-24">
+          <div
+            ref={ctaRef}
+            className="mx-auto max-w-6xl px-6 text-center"
+            style={motionStyle(ctaInView, reducedMotion)}
+          >
+            <h2 className="text-3xl font-bold">
+              Ready to ship your portfolio?
+            </h2>
+            <p className="mx-auto mt-3 max-w-lg text-muted-foreground">
+              It takes two minutes. Sign in with GitHub and your portfolio is
+              live.
+            </p>
+            <Button asChild size="lg" className="mt-8">
+              <a href={githubAuthUrl}>
+                <GitHubIcon className="mr-2 h-5 w-5" />
+                Get started with GitHub
+              </a>
+            </Button>
+          </div>
         </section>
       </main>
+      <LandingFooter />
     </div>
   );
 }
