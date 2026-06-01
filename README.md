@@ -4,6 +4,16 @@ CodeFolio is a multi-user web platform that allows developers to create a profes
 
 Upon signing in with GitHub, the platform automatically imports the user's public repository data to populate their profile. From there, users manage their content — bio, skills, projects, and education — through a private dashboard, and can choose from a selection of layout templates and themes to personalize how their portfolio looks.
 
+## Screenshots
+
+<p align="center">
+  <img src="./images/landing-page-dark.png" alt="CodeFolio landing page — dark mode" width="900" />
+</p>
+
+<p align="center">
+  <img src="./images/landing-page-light.png" alt="CodeFolio landing page — light mode" width="900" />
+</p>
+
 ## Features
 
 - **GitHub OAuth** — Sign in with GitHub, no registration form required
