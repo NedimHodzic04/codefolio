@@ -24,6 +24,8 @@ const UserSchema = new mongoose.Schema(
     education: [{ type: mongoose.Schema.Types.ObjectId, ref: "Education" }],
     layoutTemplate: { type: String, default: "default" },
     theme: { type: String, default: "light" },
+    isShowcased: { type: Boolean, default: false },
+    isAdmin: { type: Boolean, default: false },
     githubAccessToken: { type: String, select: false }, // Stored securely, not returned by default
   },
   { timestamps: true },

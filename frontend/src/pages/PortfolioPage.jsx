@@ -8,9 +8,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Pencil1Icon } from "@radix-ui/react-icons";
+import { Pencil1Icon, StarFilledIcon } from "@radix-ui/react-icons";
 import { getLayoutComponent } from "@/lib/layoutSelector";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
 
 export default function PortfolioPage() {
   const { username } = useParams();
@@ -19,6 +20,14 @@ export default function PortfolioPage() {
   const [portfolioUser, setPortfolioUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [toggling, setToggling] = useState(false);
+  const [showcased, setShowcased] = useState(false);
+
+  useEffect(() => {
+    if (portfolioUser) {
+      setShowcased(portfolioUser.isShowcased);
+    }
+  }, [portfolioUser?.isShowcased]);
 
   useEffect(() => {
     // Remove dark mode class from document root for portfolio pages
@@ -71,6 +80,31 @@ export default function PortfolioPage() {
   // Check if current user is the portfolio owner
   const isOwner = currentUser && currentUser.username === portfolioUser.username;
 
+  const toggleShowcase = async () => {
+    setToggling(true);
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/${username}/showcase`,
+        { method: "PATCH", credentials: "include" },
+      );
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Failed to toggle showcase");
+      }
+      const data = await res.json();
+      setShowcased(data.isShowcased);
+      toast.success(
+        data.isShowcased
+          ? "Added to showcase"
+          : "Removed from showcase",
+      );
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setToggling(false);
+    }
+  };
+
   // Get the selected layout component
   const LayoutComponent = getLayoutComponent(portfolioUser.layoutTemplate);
 
@@ -94,6 +128,26 @@ export default function PortfolioPage() {
           >
             <Pencil1Icon className="w-4 h-4 mr-2" />
             Edit Portfolio
+          </Button>
+        </div>
+      )}
+
+      {/* Admin showcase toggle — bottom-right */}
+      {currentUser?.isAdmin && (
+        <div className="fixed bottom-4 right-4 z-50">
+          <Button
+            className="shadow-lg"
+            size="sm"
+            onClick={toggleShowcase}
+            disabled={toggling}
+            aria-label={showcased ? "Remove from Showcase" : "Add to Showcase"}
+          >
+            <StarFilledIcon className="w-4 h-4 mr-2" />
+            {toggling
+              ? "Updating..."
+              : showcased
+                ? "Remove from Showcase"
+                : "Add to Showcase"}
           </Button>
         </div>
       )}

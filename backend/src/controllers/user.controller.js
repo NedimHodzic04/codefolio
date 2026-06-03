@@ -10,6 +10,17 @@ export const getMe = (req, res) => {
   }
 };
 
+export const getShowcasedUsers = async (req, res) => {
+  try {
+    const users = await User.find({ isShowcased: true }).select(
+      "username displayName avatarUrl bio location skills",
+    );
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 export const getUserByUsername = async (req, res) => {
   try {
     const user = await User.findOne({ username: req.params.user }).populate(
@@ -26,6 +37,27 @@ export const getUserByUsername = async (req, res) => {
     });
     res.json({ ...user.toObject(), projects });
   } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const toggleShowcase = async (req, res) => {
+  try {
+    if (!req.user.isAdmin) {
+      return res.status(403).json({ message: "Forbidden: Admin access required" });
+    }
+
+    const targetUser = await User.findOne({ username: req.params.username });
+    if (!targetUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    targetUser.isShowcased = !targetUser.isShowcased;
+    await targetUser.save();
+
+    res.json({ isShowcased: targetUser.isShowcased });
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };

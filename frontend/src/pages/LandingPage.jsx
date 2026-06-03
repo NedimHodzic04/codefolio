@@ -1,16 +1,16 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useInView, motionStyle, getReducedMotion } from "@/lib/animations";
+import LandingFooter from "@/components/LandingFooter";
 import previewClassicLight from "@/assets/preview-classic-light.png";
 import previewMinimalGreen from "@/assets/preview-minimal-green.png";
 import previewModernDark from "@/assets/preview-modern-dark.png";
 
 const githubAuthUrl = `${import.meta.env.VITE_API_URL}/auth/github/`;
-const GITHUB_REPO_URL = "https://github.com/NedimHodzic04/codefolio";
-const BUILDER_PORTFOLIO_PATH = "/NedimHodzic04";
 
 const previewGlob = import.meta.glob("../assets/preview-*.png", {
   eager: true,
@@ -42,69 +42,6 @@ const HOW_IT_WORKS_STEPS = [
     body: "Your portfolio is live at code-folio.app/username the moment you sign in. Send it to recruiters, drop it in your bio, put it on your CV.",
   },
 ];
-
-function getReducedMotion() {
-  return (
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  );
-}
-
-function motionStyle(visible, reducedMotion, delayMs = 0, offsetY = 16) {
-  if (reducedMotion) {
-    return { opacity: 1, transform: "translateY(0)" };
-  }
-
-  return {
-    opacity: visible ? 1 : 0,
-    transform: visible ? "translateY(0)" : `translateY(${offsetY}px)`,
-    transition: `opacity 700ms ease-out ${delayMs}ms, transform 700ms ease-out ${delayMs}ms`,
-  };
-}
-
-function useInView(reducedMotion, threshold = 0.15) {
-  const [inView, setInView] = useState(reducedMotion);
-  const observerRef = useRef(null);
-
-  const ref = useCallback(
-    (node) => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-        observerRef.current = null;
-      }
-
-      if (!node) return;
-
-      if (reducedMotion) {
-        setInView(true);
-        return;
-      }
-
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) setInView(true);
-        },
-        { threshold, rootMargin: "0px 0px -8% 0px" },
-      );
-
-      observer.observe(node);
-      observerRef.current = observer;
-
-      requestAnimationFrame(() => {
-        const rect = node.getBoundingClientRect();
-        const viewHeight = window.innerHeight || document.documentElement.clientHeight;
-        if (rect.top < viewHeight && rect.bottom > 0) {
-          setInView(true);
-        }
-      });
-    },
-    [reducedMotion, threshold],
-  );
-
-  useEffect(() => () => observerRef.current?.disconnect(), []);
-
-  return [ref, inView];
-}
 
 function GitHubIcon({ className }) {
   return (
@@ -183,76 +120,6 @@ function CrossfadeMockup({ contentHeightClass, wrapperClassName }) {
         {PREVIEWS[activeIndex].alt}
       </p>
     </div>
-  );
-}
-
-function LandingFooter() {
-  return (
-    <footer className="border-t py-12">
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="flex flex-col gap-8 md:flex-row">
-          <div className="flex-1 space-y-2">
-            <Link className="flex w-fit items-center space-x-2" to="/">
-              <img
-                src="/favicon-light.svg"
-                className="h-6 w-6 dark:hidden"
-                alt=""
-              />
-              <img
-                src="/favicon-dark.svg"
-                className="hidden h-6 w-6 dark:block"
-                alt=""
-              />
-              <span className="font-bold">Codefolio</span>
-            </Link>
-            <p className="text-sm text-muted-foreground">
-              Developer portfolio generator, powered by GitHub.
-            </p>
-          </div>
-
-          <div className="flex flex-1 flex-col items-start md:items-center md:text-center">
-            <nav className="flex flex-wrap gap-6">
-              <Link
-                to="/"
-                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-              >
-                Home
-              </Link>
-              <Link
-                to="/showcase"
-                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-              >
-                Showcase
-              </Link>
-              <a
-                href={GITHUB_REPO_URL}
-                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                GitHub
-              </a>
-            </nav>
-          </div>
-
-          <div className="flex flex-1 flex-col items-start md:items-end md:text-right">
-            <p className="text-sm text-muted-foreground">
-              Built by{" "}
-              <Link
-                to={BUILDER_PORTFOLIO_PATH}
-                className="text-sm font-medium text-foreground hover:underline"
-              >
-                Nedim Hodžić
-              </Link>
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-8 border-t pt-8 text-center">
-          <p className="text-xs text-muted-foreground">© 2026 Codefolio</p>
-        </div>
-      </div>
-    </footer>
   );
 }
 
