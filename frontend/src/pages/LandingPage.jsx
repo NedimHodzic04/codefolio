@@ -17,8 +17,6 @@ const previewGlob = import.meta.glob("../assets/preview-*.png", {
   import: "default",
 });
 
-
-
 const PREVIEWS = [
   { src: previewClassicLight, alt: "Default layout · Light theme" },
   { src: previewModernDark, alt: "Modern layout · Dark theme" },
@@ -94,7 +92,7 @@ function CrossfadeMockup({ contentHeightClass, wrapperClassName }) {
           <span className="h-2 w-2 rounded-full bg-yellow-400/70" aria-hidden />
           <span className="h-2 w-2 rounded-full bg-green-400/70" aria-hidden />
           <div className="mx-3 flex h-5 flex-1 items-center justify-center rounded-full bg-background/60 px-2">
-            <span className="truncate text-xs text-muted-foreground">
+            <span className="font-mono truncate text-xs text-muted-foreground">
               code-folio.app/username
             </span>
           </div>
@@ -152,7 +150,9 @@ export default function LandingPage() {
             <div className="grid min-h-0 grid-cols-1 items-center gap-12 md:grid-cols-12 md:gap-10 lg:gap-14">
               <div className="max-w-xl space-y-6 md:col-span-7">
                 <div style={motionStyle(showHero, reducedMotion, 0)}>
-                  <Badge>Free to use · No coding required</Badge>
+                  <Badge className="font-mono text-xs">
+                    Free to use · No coding required
+                  </Badge>
                 </div>
 
                 <h1
@@ -173,20 +173,29 @@ export default function LandingPage() {
 
                 <div style={motionStyle(showHero, reducedMotion, 300)}>
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <Button asChild size="lg">
+                    <Button
+                      asChild
+                      size="lg"
+                      className="transition-shadow duration-200 hover:shadow-md"
+                    >
                       <a href={githubAuthUrl}>
                         <GitHubIcon className="mr-2 h-5 w-5" />
                         Get started with GitHub
                       </a>
                     </Button>
-                    <Button asChild variant="outline" size="lg">
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="lg"
+                      className="transition-shadow duration-200 hover:shadow-md"
+                    >
                       <Link to="/showcase">Browse showcase</Link>
                     </Button>
                   </div>
                 </div>
 
                 <p
-                  className="text-sm text-muted-foreground"
+                  className="font-mono text-sm text-muted-foreground"
                   style={motionStyle(showHero, reducedMotion, 400)}
                 >
                   Built for developers who'd rather ship than design.
@@ -219,7 +228,7 @@ export default function LandingPage() {
         <section className="px-6 pt-24 pb-32 md:pt-32">
           <div className="mx-auto max-w-6xl">
             <div ref={howRef} style={motionStyle(howInView, reducedMotion)}>
-              <p className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+              <p className="font-mono text-xs font-semibold tracking-widest text-muted-foreground uppercase">
                 How it works
               </p>
               <h2 className="mt-3 text-3xl font-bold md:text-4xl">
@@ -232,10 +241,21 @@ export default function LandingPage() {
             </div>
 
             <div className="mt-16 grid grid-cols-1 gap-12 md:grid-cols-3">
-              <div ref={step1Ref} style={motionStyle(step1InView, reducedMotion, 0)}>
-                <span className="text-5xl font-bold text-muted-foreground/20">
-                  {HOW_IT_WORKS_STEPS[0].number}
-                </span>
+              <div
+                ref={step1Ref}
+                style={motionStyle(step1InView, reducedMotion, 0)}
+              >
+                <div className="relative">
+                  <span
+                    aria-hidden
+                    className="absolute -top-4 -left-1 text-8xl font-mono text-muted-foreground/5 select-none pointer-events-none"
+                  >
+                    {HOW_IT_WORKS_STEPS[0].number}
+                  </span>
+                  <span className="relative font-mono text-5xl font-bold text-muted-foreground/20">
+                    {HOW_IT_WORKS_STEPS[0].number}
+                  </span>
+                </div>
                 <h3 className="mt-4 text-lg font-semibold">
                   {HOW_IT_WORKS_STEPS[0].heading}
                 </h3>
@@ -243,10 +263,21 @@ export default function LandingPage() {
                   {HOW_IT_WORKS_STEPS[0].body}
                 </p>
               </div>
-              <div ref={step2Ref} style={motionStyle(step2InView, reducedMotion, 150)}>
-                <span className="text-5xl font-bold text-muted-foreground/20">
-                  {HOW_IT_WORKS_STEPS[1].number}
-                </span>
+              <div
+                ref={step2Ref}
+                style={motionStyle(step2InView, reducedMotion, 150)}
+              >
+                <div className="relative">
+                  <span
+                    aria-hidden
+                    className="absolute -top-4 -left-1 text-8xl font-mono text-muted-foreground/5 select-none pointer-events-none"
+                  >
+                    {HOW_IT_WORKS_STEPS[1].number}
+                  </span>
+                  <span className="relative font-mono text-5xl font-bold text-muted-foreground/20">
+                    {HOW_IT_WORKS_STEPS[1].number}
+                  </span>
+                </div>
                 <h3 className="mt-4 text-lg font-semibold">
                   {HOW_IT_WORKS_STEPS[1].heading}
                 </h3>
@@ -254,10 +285,21 @@ export default function LandingPage() {
                   {HOW_IT_WORKS_STEPS[1].body}
                 </p>
               </div>
-              <div ref={step3Ref} style={motionStyle(step3InView, reducedMotion, 300)}>
-                <span className="text-5xl font-bold text-muted-foreground/20">
-                  {HOW_IT_WORKS_STEPS[2].number}
-                </span>
+              <div
+                ref={step3Ref}
+                style={motionStyle(step3InView, reducedMotion, 300)}
+              >
+                <div className="relative">
+                  <span
+                    aria-hidden
+                    className="absolute -top-4 -left-1 text-8xl font-mono text-muted-foreground/5 select-none pointer-events-none"
+                  >
+                    {HOW_IT_WORKS_STEPS[2].number}
+                  </span>
+                  <span className="relative font-mono text-5xl font-bold text-muted-foreground/20">
+                    {HOW_IT_WORKS_STEPS[2].number}
+                  </span>
+                </div>
                 <h3 className="mt-4 text-lg font-semibold">
                   {HOW_IT_WORKS_STEPS[2].heading}
                 </h3>

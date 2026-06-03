@@ -225,9 +225,10 @@ export default function AppearanceSection({ user, onUpdate }) {
             <Button
               variant="outline"
               onClick={() => navigate(`/${user?.username}`)}
-              className="flex-1 sm:flex-initial"
+              className="flex-1 sm:flex-initial group overflow-hidden"
             >
               View Portfolio
+              <span className="inline-block opacity-0 translate-x-1 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0">→</span>
             </Button>
           </div>
           {!hasChanges && (

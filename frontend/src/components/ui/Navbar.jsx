@@ -57,7 +57,7 @@ function ProfileControl() {
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            className="rounded-full ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="inline-flex items-center justify-center h-9 rounded-full ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <Avatar className="h-8 w-8 cursor-pointer">
               <AvatarImage src={user.avatarUrl} alt={user.displayName} />
@@ -66,9 +66,11 @@ function ProfileControl() {
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
-          <div className="px-2 py-1.5 text-sm font-medium">{user.displayName}</div>
+          <div className="px-2 py-1.5 text-sm font-medium">
+            {user.displayName}
+          </div>
           <div className="px-2 pb-1.5 text-xs text-muted-foreground">
-            @{user.username}
+            <span className="font-mono">@{user.username}</span>
           </div>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
@@ -118,9 +120,11 @@ function MobileMenu({ isOpen, onOpenChange }) {
                   <AvatarFallback>{user.displayName?.[0]}</AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">{user.displayName}</p>
+                  <p className="truncate text-sm font-medium">
+                    {user.displayName}
+                  </p>
                   <p className="truncate text-xs text-muted-foreground">
-                    @{user.username}
+                    <span className="font-mono">@{user.username}</span>
                   </p>
                 </div>
               </div>
@@ -189,7 +193,9 @@ export default function Navbar() {
             className="hidden h-6 w-6 dark:block"
             alt=""
           />
-          <span className="font-bold">Codefolio</span>
+          <span className="font-mono font-semibold tracking-tight text-lg">
+            Codefolio
+          </span>
         </Link>
 
         <div className="flex items-center gap-1">

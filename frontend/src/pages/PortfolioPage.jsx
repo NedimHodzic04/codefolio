@@ -29,7 +29,7 @@ function CodefolioBadge() {
         className="hidden h-4 w-4 dark:block"
         alt=""
       />
-      <span className="text-xs text-muted-foreground transition-colors group-hover:text-foreground">
+      <span className="font-mono text-xs text-muted-foreground transition-colors group-hover:text-foreground">
         Powered by Codefolio
       </span>
     </Link>
@@ -156,7 +156,7 @@ export default function PortfolioPage() {
       )}
 
       {/* Bottom-right controls */}
-      <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 items-end">
+      <div className="fixed bottom-4 left-4 z-50 flex flex-col gap-2 items-start">
         {currentUser?.isAdmin && (
           <Button
             className="shadow-lg"

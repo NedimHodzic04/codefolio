@@ -306,7 +306,7 @@ export default function EducationSection({ user }) {
         <Card>
           <CardContent className="py-12">
             <div className="text-center text-muted-foreground">
-              No education entries yet. Add your academic background to get started.
+              <span className="font-mono">No education entries yet. Add your academic background to get started.</span>
             </div>
           </CardContent>
         </Card>

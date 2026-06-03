@@ -109,17 +109,21 @@ export default function ShowcasePage() {
                 No showcased developers yet. Check back soon!
               </div>
             ) : (
-              <div
-                ref={gridRef}
-                className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
-              >
-                {users.map((user, index) => (
-                  <Link
-                    key={user._id}
-                    to={`/${user.username}`}
-                    style={motionStyle(gridInView, reducedMotion, index * 100)}
-                    className="flex items-center gap-4 rounded-xl border border-border/50 bg-muted/80 p-6 transition-colors hover:border-border"
-                  >
+              <>
+                <p className="font-mono text-sm text-muted-foreground mb-6">
+                  {users.length} developer{users.length !== 1 ? "s" : ""} showcased
+                </p>
+                <div
+                  ref={gridRef}
+                  className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+                >
+                  {users.map((user, index) => (
+                    <Link
+                      key={user._id}
+                      to={`/${user.username}`}
+                      style={motionStyle(gridInView, reducedMotion, index * 100)}
+                      className="flex items-center gap-4 rounded-xl border border-border/50 bg-muted/80 p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-border"
+                    >
                     <Avatar size="lg">
                       <AvatarImage
                         src={user.avatarUrl}
@@ -134,12 +138,13 @@ export default function ShowcasePage() {
                         {user.displayName || user.username}
                       </p>
                       <p className="truncate text-sm text-muted-foreground">
-                        @{user.username}
+                        <span className="font-mono">@{user.username}</span>
                       </p>
                     </div>
                   </Link>
                 ))}
               </div>
+            </>
             )}
           </div>
         </section>

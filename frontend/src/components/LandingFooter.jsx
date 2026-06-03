@@ -20,7 +20,7 @@ export default function LandingFooter() {
                 className="hidden h-6 w-6 dark:block"
                 alt=""
               />
-              <span className="font-bold">Codefolio</span>
+              <span className="font-mono font-bold">Codefolio</span>
             </Link>
             <p className="text-sm text-muted-foreground">
               Developer portfolio generator, powered by GitHub.
@@ -33,13 +33,17 @@ export default function LandingFooter() {
                 to="/"
                 className="text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
-                Home
+                <span className="relative inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-px after:bg-foreground after:transition-all after:duration-200 hover:after:w-full">
+                  Home
+                </span>
               </Link>
               <Link
                 to="/showcase"
                 className="text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
-                Showcase
+                <span className="relative inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-px after:bg-foreground after:transition-all after:duration-200 hover:after:w-full">
+                  Showcase
+                </span>
               </Link>
               <a
                 href={GITHUB_REPO_URL}
@@ -47,7 +51,9 @@ export default function LandingFooter() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                GitHub
+                <span className="relative inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-px after:bg-foreground after:transition-all after:duration-200 hover:after:w-full">
+                  GitHub
+                </span>
               </a>
             </nav>
           </div>
