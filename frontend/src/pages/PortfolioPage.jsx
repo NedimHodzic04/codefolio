@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -12,6 +12,29 @@ import { Pencil1Icon, StarFilledIcon } from "@radix-ui/react-icons";
 import { getLayoutComponent } from "@/lib/layoutSelector";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
+
+function CodefolioBadge() {
+  return (
+    <Link
+      to="/"
+      className="group flex items-center gap-1.5 rounded-full border border-border/50 bg-background/80 px-3 py-1.5 opacity-60 backdrop-blur-sm transition-all hover:opacity-100"
+    >
+      <img
+        src="/favicon-light.svg"
+        className="h-4 w-4 dark:hidden"
+        alt=""
+      />
+      <img
+        src="/favicon-dark.svg"
+        className="hidden h-4 w-4 dark:block"
+        alt=""
+      />
+      <span className="text-xs text-muted-foreground transition-colors group-hover:text-foreground">
+        Powered by Codefolio
+      </span>
+    </Link>
+  );
+}
 
 export default function PortfolioPage() {
   const { username } = useParams();
@@ -132,9 +155,9 @@ export default function PortfolioPage() {
         </div>
       )}
 
-      {/* Admin showcase toggle — bottom-right */}
-      {currentUser?.isAdmin && (
-        <div className="fixed bottom-4 right-4 z-50">
+      {/* Bottom-right controls */}
+      <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 items-end">
+        {currentUser?.isAdmin && (
           <Button
             className="shadow-lg"
             size="sm"
@@ -149,8 +172,9 @@ export default function PortfolioPage() {
                 ? "Remove from Showcase"
                 : "Add to Showcase"}
           </Button>
-        </div>
-      )}
+        )}
+        <CodefolioBadge />
+      </div>
     </div>
   );
 }

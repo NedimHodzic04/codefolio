@@ -77,7 +77,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4">
+        <div className="mx-auto max-w-6xl px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold">Dashboard</h1>
@@ -95,7 +95,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="mx-auto max-w-6xl px-6 py-8">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar Navigation - Desktop */}
           <aside className="hidden lg:block w-64 shrink-0">
