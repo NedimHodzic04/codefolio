@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
+import { MapPin } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { useInView, motionStyle, getReducedMotion } from "@/lib/animations";
 import LandingFooter from "@/components/LandingFooter";
@@ -122,27 +124,52 @@ export default function ShowcasePage() {
                       key={user._id}
                       to={`/${user.username}`}
                       style={motionStyle(gridInView, reducedMotion, index * 100)}
-                      className="flex items-center gap-4 rounded-xl border border-border/50 bg-muted/80 p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-border"
+                      className="flex flex-col items-center text-center rounded-xl border border-border/50 bg-muted/80 p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-border"
                     >
-                    <Avatar size="lg">
-                      <AvatarImage
-                        src={user.avatarUrl}
-                        alt={user.displayName || user.username}
-                      />
-                      <AvatarFallback>
-                        {(user.displayName || user.username)[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate font-semibold">
-                        {user.displayName || user.username}
-                      </p>
-                      <p className="truncate text-sm text-muted-foreground">
-                        <span className="font-mono">@{user.username}</span>
-                      </p>
-                    </div>
-                  </Link>
-                ))}
+                      <Avatar size="lg" className="mb-3">
+                        <AvatarImage
+                          src={user.avatarUrl}
+                          alt={user.displayName || user.username}
+                        />
+                        <AvatarFallback>
+                          {(user.displayName || user.username)[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0">
+                        <p className="truncate font-semibold">
+                          {user.displayName || user.username}
+                        </p>
+                        <p className="truncate text-sm text-muted-foreground">
+                          <span className="font-mono">@{user.username}</span>
+                        </p>
+                      </div>
+                      {user.bio && (
+                        <p className="mt-2 text-sm text-muted-foreground line-clamp-1">
+                          {user.bio}
+                        </p>
+                      )}
+                      {user.location && (
+                        <p className="mt-1.5 flex items-center justify-center gap-1 text-xs text-muted-foreground">
+                          <MapPin className="h-3 w-3 shrink-0" />
+                          {user.location}
+                        </p>
+                      )}
+                      {user.skills && user.skills.length > 0 && (
+                        <div className="mt-3 flex flex-wrap justify-center gap-1">
+                          {user.skills.slice(0, 4).map((skill) => (
+                            <Badge key={skill} variant="secondary" className="font-mono text-xs">
+                              {skill}
+                            </Badge>
+                          ))}
+                          {user.skills.length > 4 && (
+                            <span className="self-center text-xs text-muted-foreground">
+                              +{user.skills.length - 4} more
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </Link>
+                  ))}
               </div>
             </>
             )}
