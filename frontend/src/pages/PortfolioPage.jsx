@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -8,9 +8,33 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Pencil1Icon } from "@radix-ui/react-icons";
+import { Pencil1Icon, StarFilledIcon } from "@radix-ui/react-icons";
 import { getLayoutComponent } from "@/lib/layoutSelector";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
+
+function CodefolioBadge() {
+  return (
+    <Link
+      to="/"
+      className="group flex items-center gap-1.5 rounded-full border border-border/50 bg-background/80 px-3 py-1.5 opacity-60 backdrop-blur-sm transition-all hover:opacity-100"
+    >
+      <img
+        src="/favicon-light.svg"
+        className="h-4 w-4 dark:hidden"
+        alt=""
+      />
+      <img
+        src="/favicon-dark.svg"
+        className="hidden h-4 w-4 dark:block"
+        alt=""
+      />
+      <span className="font-mono text-xs text-muted-foreground transition-colors group-hover:text-foreground">
+        Powered by Codefolio
+      </span>
+    </Link>
+  );
+}
 
 export default function PortfolioPage() {
   const { username } = useParams();
@@ -19,6 +43,14 @@ export default function PortfolioPage() {
   const [portfolioUser, setPortfolioUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [toggling, setToggling] = useState(false);
+  const [showcased, setShowcased] = useState(false);
+
+  useEffect(() => {
+    if (portfolioUser) {
+      setShowcased(portfolioUser.isShowcased);
+    }
+  }, [portfolioUser?.isShowcased]);
 
   useEffect(() => {
     // Remove dark mode class from document root for portfolio pages
@@ -71,6 +103,31 @@ export default function PortfolioPage() {
   // Check if current user is the portfolio owner
   const isOwner = currentUser && currentUser.username === portfolioUser.username;
 
+  const toggleShowcase = async () => {
+    setToggling(true);
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/${username}/showcase`,
+        { method: "PATCH", credentials: "include" },
+      );
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Failed to toggle showcase");
+      }
+      const data = await res.json();
+      setShowcased(data.isShowcased);
+      toast.success(
+        data.isShowcased
+          ? "Added to showcase"
+          : "Removed from showcase",
+      );
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setToggling(false);
+    }
+  };
+
   // Get the selected layout component
   const LayoutComponent = getLayoutComponent(portfolioUser.layoutTemplate);
 
@@ -83,9 +140,9 @@ export default function PortfolioPage() {
         theme={portfolioUser.theme || "light"}
       />
 
-      {/* Owner edit control — top-right so it does not overlap layout scroll buttons */}
-      {isOwner && (
-        <div className="fixed top-4 right-4 z-50">
+      {/* Bottom controls — fixed, z-40 sits below layout navbars */}
+      <div className="fixed bottom-4 left-4 z-40 flex flex-col gap-2 items-start">
+        {isOwner && (
           <Button
             onClick={() => navigate("/dashboard")}
             className="shadow-lg"
@@ -95,8 +152,25 @@ export default function PortfolioPage() {
             <Pencil1Icon className="w-4 h-4 mr-2" />
             Edit Portfolio
           </Button>
-        </div>
-      )}
+        )}
+        {currentUser?.isAdmin && (
+          <Button
+            className="shadow-lg"
+            size="sm"
+            onClick={toggleShowcase}
+            disabled={toggling}
+            aria-label={showcased ? "Remove from Showcase" : "Add to Showcase"}
+          >
+            <StarFilledIcon className="w-4 h-4 mr-2" />
+            {toggling
+              ? "Updating..."
+              : showcased
+                ? "Remove from Showcase"
+                : "Add to Showcase"}
+          </Button>
+        )}
+        <CodefolioBadge />
+      </div>
     </div>
   );
 }

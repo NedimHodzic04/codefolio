@@ -44,7 +44,7 @@ export default function MinimalLayout({ user, projects, education, theme = "ligh
   const hasSkills = user?.skills && user.skills.length > 0;
 
   return (
-    <div className={`theme-${theme} min-h-screen bg-background text-foreground`}>
+    <div className={`theme-${theme} min-h-screen bg-background text-foreground pb-20`}>
       {/* Hero Section - Full Screen */}
       <section className={`min-h-screen flex flex-col items-center justify-center px-6 sm:px-8 relative ${heroBandClass}`}>
         <div className="max-w-3xl w-full mx-auto">

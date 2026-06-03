@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LinkedInLogoIcon, TwitterLogoIcon, GlobeIcon, GitHubLogoIcon, EnvelopeClosedIcon } from "@radix-ui/react-icons";
-import { MapPinIcon } from "lucide-react";
+import { MapPinIcon, Menu } from "lucide-react";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import {
   accentBadgeClass,
   heroBandClass,
@@ -20,6 +22,7 @@ const formatDate = (dateString) => {
 };
 
 export default function DefaultLayout({ user, projects, education, theme = "light" }) {
+  const [navOpen, setNavOpen] = useState(false);
   const currentYear = new Date().getFullYear();
 
   // Filter and sort projects
@@ -57,15 +60,15 @@ export default function DefaultLayout({ user, projects, education, theme = "ligh
   const hasSkills = user?.skills && user.skills.length > 0;
 
   return (
-    <div className={`theme-${theme} min-h-screen bg-background text-foreground`}>
+    <div className={`theme-${theme} min-h-screen bg-background text-foreground pb-20`}>
       {/* Sticky Navigation */}
-      <nav className="sticky top-0 z-50 bg-card/80 backdrop-blur-sm border-b border-primary/20">
+      <nav className="sticky top-0 z-[60] bg-card/80 backdrop-blur-sm border-b border-primary/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="font-semibold text-lg text-foreground">
               {user?.username || "Portfolio"}
             </div>
-            <div className="flex gap-6">
+            <div className="hidden md:flex gap-6">
               <a href="#about" className={navLinkClass}>
                 About
               </a>
@@ -78,6 +81,27 @@ export default function DefaultLayout({ user, projects, education, theme = "ligh
               <a href="#contact" className={navLinkClass}>
                 Contact
               </a>
+            </div>
+            <div className="md:hidden">
+              <Sheet open={navOpen} onOpenChange={setNavOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-9 w-9">
+                    <Menu className="h-5 w-5" />
+                    <span className="sr-only">Toggle navigation</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[240px] gap-0 p-0">
+                  <SheetTitle className="sr-only">Navigation</SheetTitle>
+                  <div className="flex flex-col px-4 pt-14">
+                    <nav className="flex flex-col gap-1">
+                      <a href="#about" className="flex h-11 w-full items-center px-3 text-sm font-medium text-muted-foreground hover:text-foreground" onClick={() => setNavOpen(false)}>About</a>
+                      <a href="#projects" className="flex h-11 w-full items-center px-3 text-sm font-medium text-muted-foreground hover:text-foreground" onClick={() => setNavOpen(false)}>Projects</a>
+                      <a href="#education" className="flex h-11 w-full items-center px-3 text-sm font-medium text-muted-foreground hover:text-foreground" onClick={() => setNavOpen(false)}>Education</a>
+                      <a href="#contact" className="flex h-11 w-full items-center px-3 text-sm font-medium text-muted-foreground hover:text-foreground" onClick={() => setNavOpen(false)}>Contact</a>
+                    </nav>
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
         </div>

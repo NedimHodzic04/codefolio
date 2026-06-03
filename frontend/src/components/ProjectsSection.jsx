@@ -363,7 +363,7 @@ export default function ProjectsSection({ user }) {
         <Card>
           <CardContent className="py-12">
             <div className="text-center text-muted-foreground">
-              No projects yet. Add a custom project or sync from GitHub.
+              <span className="font-mono">No projects yet. Add a custom project or sync from GitHub.</span>
             </div>
           </CardContent>
         </Card>

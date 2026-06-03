@@ -1,9 +1,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import ProfileSection from "@/components/ProfileSection";
 import ProjectsSection from "@/components/ProjectsSection";
@@ -44,25 +42,25 @@ export default function Dashboard() {
   }
 
   const sections = [
-    { 
-      id: "profile", 
+    {
+      id: "profile",
       label: "Profile",
-      description: "Manage your personal information and social links"
+      description: "Manage your personal information and social links",
     },
-    { 
-      id: "projects", 
+    {
+      id: "projects",
       label: "Projects",
-      description: "Showcase your work and GitHub repositories"
+      description: "Showcase your work and GitHub repositories",
     },
-    { 
-      id: "education", 
+    {
+      id: "education",
       label: "Education",
-      description: "Add your academic background and certifications"
+      description: "Add your academic background and certifications",
     },
-    { 
-      id: "appearance", 
+    {
+      id: "appearance",
       label: "Appearance",
-      description: "Customize your portfolio's look and feel"
+      description: "Customize your portfolio's look and feel",
     },
   ];
 
@@ -76,104 +74,69 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold">Dashboard</h1>
-              <p className="text-sm text-muted-foreground">
-                Manage your portfolio and profile
-              </p>
-            </div>
-            <Button 
-              variant="outline" 
-              onClick={() => navigate(`/${user.username}`)}
-            >
-              View Portfolio
-            </Button>
+      <div className="mx-auto max-w-6xl px-6 pt-12 pb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Dashboard</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Manage your portfolio and profile
+            </p>
           </div>
+          <Button
+            variant="outline"
+            onClick={() => navigate(`/${user.username}`)}
+            className="group overflow-hidden"
+          >
+            View Portfolio
+            <span className="inline-block opacity-0 translate-x-1 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0">→</span>
+          </Button>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Sidebar Navigation - Desktop */}
-          <aside className="hidden lg:block w-64 shrink-0">
-            <div className="sticky top-20">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Navigation</CardTitle>
-                </CardHeader>
-                <CardContent className="p-2">
-                  <nav className="flex flex-col gap-1">
-                    {sections.map((section) => (
-                      <Button
-                        key={section.id}
-                        variant={activeSection === section.id ? "secondary" : "ghost"}
-                        className="justify-start"
-                        onClick={() => setActiveSection(section.id)}
-                      >
-                        {section.label}
-                      </Button>
-                    ))}
-                  </nav>
-                </CardContent>
-              </Card>
-            </div>
-          </aside>
-
-          {/* Tab Navigation - Mobile */}
-          <div className="lg:hidden">
-            <Card>
-              <CardContent className="p-3">
-                <nav className="flex gap-2 overflow-x-auto pb-1">
-                  {sections.map((section) => (
-                    <Button
-                      key={section.id}
-                      variant={activeSection === section.id ? "secondary" : "ghost"}
-                      size="sm"
-                      onClick={() => setActiveSection(section.id)}
-                      className="whitespace-nowrap"
-                    >
-                      {section.label}
-                    </Button>
-                  ))}
-                </nav>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Main Content Area */}
-          <main className="flex-1 min-w-0">
-            <div className="space-y-6">
-              {/* Section Header */}
-              <div>
-                <h2 className="text-2xl font-bold tracking-tight">
-                  {sections.find((s) => s.id === activeSection)?.label}
-                </h2>
-                <p className="text-muted-foreground mt-1">
-                  {sections.find((s) => s.id === activeSection)?.description}
-                </p>
-              </div>
-
-              <Separator />
-
-              {/* Section Content */}
-              {activeSection === "profile" && (
-                <ProfileSection user={dashboardUser} onUpdate={handleUserUpdate} />
-              )}
-              {activeSection === "projects" && (
-                <ProjectsSection user={dashboardUser} />
-              )}
-              {activeSection === "education" && (
-                <EducationSection user={dashboardUser} />
-              )}
-              {activeSection === "appearance" && (
-                <AppearanceSection user={dashboardUser} onUpdate={handleUserUpdate} />
-              )}
-            </div>
-          </main>
+      {/* Tabs */}
+      <div className="border-b">
+        <div className="mx-auto max-w-6xl px-6">
+          <nav className="flex gap-6">
+            {sections.map((section) => (
+              <button
+                key={section.id}
+                onClick={() => setActiveSection(section.id)}
+                className={`-mb-px pb-3 pt-3 text-sm font-medium transition-colors ${
+                  activeSection === section.id
+                    ? "border-b-2 border-foreground text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {section.label}
+              </button>
+            ))}
+          </nav>
         </div>
+      </div>
+
+      {/* Content */}
+      <div className="mx-auto max-w-6xl px-6 pt-8 pb-16">
+        <div className="pb-6">
+          <h2 className="text-2xl font-bold tracking-tight">
+            {sections.find((s) => s.id === activeSection)?.label}
+          </h2>
+          <p className="mt-1 text-muted-foreground">
+            {sections.find((s) => s.id === activeSection)?.description}
+          </p>
+        </div>
+
+        {activeSection === "profile" && (
+          <ProfileSection user={dashboardUser} onUpdate={handleUserUpdate} />
+        )}
+        {activeSection === "projects" && (
+          <ProjectsSection user={dashboardUser} />
+        )}
+        {activeSection === "education" && (
+          <EducationSection user={dashboardUser} />
+        )}
+        {activeSection === "appearance" && (
+          <AppearanceSection user={dashboardUser} onUpdate={handleUserUpdate} />
+        )}
       </div>
     </div>
   );

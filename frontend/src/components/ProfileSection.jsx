@@ -235,7 +235,7 @@ export default function ProfileSection({ user, onUpdate }) {
             </Avatar>
             <div>
               <div className="font-semibold text-lg">{user?.displayName}</div>
-              <div className="text-sm text-muted-foreground">@{user?.username}</div>
+              <div className="text-sm text-muted-foreground"><span className="font-mono">@{user?.username}</span></div>
             </div>
           </div>
 
@@ -280,7 +280,9 @@ export default function ProfileSection({ user, onUpdate }) {
             ) : (
               <div className="flex items-start justify-between gap-4">
                 <p className="text-sm text-muted-foreground flex-1 min-h-[2rem] flex items-center">
-                  {user?.bio || "No bio yet"}
+                  <span className={(!user?.bio || user.bio === "</>") ? "font-mono" : ""}>
+                    {user?.bio || "No bio yet"}
+                  </span>
                 </p>
                 <Button
                   variant="ghost"
@@ -393,7 +395,7 @@ export default function ProfileSection({ user, onUpdate }) {
                 </Badge>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground">No skills added yet</p>
+              <p className="text-sm text-muted-foreground"><span className="font-mono">No skills added yet</span></p>
             )}
           </div>
         </CardContent>

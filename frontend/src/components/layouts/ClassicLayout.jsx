@@ -1,10 +1,12 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { LinkedInLogoIcon, TwitterLogoIcon, GlobeIcon, GitHubLogoIcon, EnvelopeClosedIcon } from "@radix-ui/react-icons";
-import { MapPinIcon } from "lucide-react";
+import { MapPinIcon, Menu } from "lucide-react";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import {
   accentBadgeClass,
   heroBandClass,
@@ -30,6 +32,7 @@ const getSocialIcon = (platform) => {
 };
 
 export default function ClassicLayout({ user, projects, education, theme = "light" }) {
+  const [navOpen, setNavOpen] = useState(false);
   const currentYear = new Date().getFullYear();
 
   // Filter and sort projects
@@ -56,7 +59,7 @@ export default function ClassicLayout({ user, projects, education, theme = "ligh
   const hasSkills = user?.skills && user.skills.length > 0;
 
   return (
-    <div className={`theme-${theme} min-h-screen bg-background text-foreground`}>
+    <div className={`theme-${theme} min-h-screen bg-background text-foreground pb-20`}>
       {/* Static Top Navigation */}
       <nav className="border-b border-primary/20 bg-background">
         <div className="max-w-6xl mx-auto px-6 py-4">
@@ -64,7 +67,7 @@ export default function ClassicLayout({ user, projects, education, theme = "ligh
             <div className="text-xl font-bold text-foreground">
               {user?.displayName || user?.username}
             </div>
-            <div className="flex gap-6">
+            <div className="hidden md:flex gap-6">
               <a href="#about" className={navLinkClass}>
                 About
               </a>
@@ -82,6 +85,28 @@ export default function ClassicLayout({ user, projects, education, theme = "ligh
               <a href="#contact" className={navLinkClass}>
                 Contact
               </a>
+            </div>
+            <div className="md:hidden">
+              <Sheet open={navOpen} onOpenChange={setNavOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-9 w-9">
+                    <Menu className="h-5 w-5" />
+                    <span className="sr-only">Toggle navigation</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[240px] gap-0 p-0">
+                  <SheetTitle className="sr-only">Navigation</SheetTitle>
+                  <div className="flex flex-col px-4 pt-14">
+                    <nav className="flex flex-col gap-1">
+                      <a href="#about" className="flex h-11 w-full items-center px-3 text-sm font-medium text-muted-foreground hover:text-foreground" onClick={() => setNavOpen(false)}>About</a>
+                      <a href="#experience" className="flex h-11 w-full items-center px-3 text-sm font-medium text-muted-foreground hover:text-foreground" onClick={() => setNavOpen(false)}>Experience</a>
+                      {hasSkills && <a href="#skills" className="flex h-11 w-full items-center px-3 text-sm font-medium text-muted-foreground hover:text-foreground" onClick={() => setNavOpen(false)}>Skills</a>}
+                      <a href="#projects" className="flex h-11 w-full items-center px-3 text-sm font-medium text-muted-foreground hover:text-foreground" onClick={() => setNavOpen(false)}>Projects</a>
+                      <a href="#contact" className="flex h-11 w-full items-center px-3 text-sm font-medium text-muted-foreground hover:text-foreground" onClick={() => setNavOpen(false)}>Contact</a>
+                    </nav>
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
         </div>

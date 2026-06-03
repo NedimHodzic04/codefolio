@@ -1,23 +1,21 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useInView, motionStyle, getReducedMotion } from "@/lib/animations";
+import LandingFooter from "@/components/LandingFooter";
 import previewClassicLight from "@/assets/preview-classic-light.png";
 import previewMinimalGreen from "@/assets/preview-minimal-green.png";
 import previewModernDark from "@/assets/preview-modern-dark.png";
 
 const githubAuthUrl = `${import.meta.env.VITE_API_URL}/auth/github/`;
-const GITHUB_REPO_URL = "https://github.com/NedimHodzic04/codefolio";
-const BUILDER_PORTFOLIO_PATH = "/NedimHodzic04";
 
 const previewGlob = import.meta.glob("../assets/preview-*.png", {
   eager: true,
   import: "default",
 });
-
-
 
 const PREVIEWS = [
   { src: previewClassicLight, alt: "Default layout · Light theme" },
@@ -42,69 +40,6 @@ const HOW_IT_WORKS_STEPS = [
     body: "Your portfolio is live at code-folio.app/username the moment you sign in. Send it to recruiters, drop it in your bio, put it on your CV.",
   },
 ];
-
-function getReducedMotion() {
-  return (
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  );
-}
-
-function motionStyle(visible, reducedMotion, delayMs = 0, offsetY = 16) {
-  if (reducedMotion) {
-    return { opacity: 1, transform: "translateY(0)" };
-  }
-
-  return {
-    opacity: visible ? 1 : 0,
-    transform: visible ? "translateY(0)" : `translateY(${offsetY}px)`,
-    transition: `opacity 700ms ease-out ${delayMs}ms, transform 700ms ease-out ${delayMs}ms`,
-  };
-}
-
-function useInView(reducedMotion, threshold = 0.15) {
-  const [inView, setInView] = useState(reducedMotion);
-  const observerRef = useRef(null);
-
-  const ref = useCallback(
-    (node) => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-        observerRef.current = null;
-      }
-
-      if (!node) return;
-
-      if (reducedMotion) {
-        setInView(true);
-        return;
-      }
-
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) setInView(true);
-        },
-        { threshold, rootMargin: "0px 0px -8% 0px" },
-      );
-
-      observer.observe(node);
-      observerRef.current = observer;
-
-      requestAnimationFrame(() => {
-        const rect = node.getBoundingClientRect();
-        const viewHeight = window.innerHeight || document.documentElement.clientHeight;
-        if (rect.top < viewHeight && rect.bottom > 0) {
-          setInView(true);
-        }
-      });
-    },
-    [reducedMotion, threshold],
-  );
-
-  useEffect(() => () => observerRef.current?.disconnect(), []);
-
-  return [ref, inView];
-}
 
 function GitHubIcon({ className }) {
   return (
@@ -157,7 +92,7 @@ function CrossfadeMockup({ contentHeightClass, wrapperClassName }) {
           <span className="h-2 w-2 rounded-full bg-yellow-400/70" aria-hidden />
           <span className="h-2 w-2 rounded-full bg-green-400/70" aria-hidden />
           <div className="mx-3 flex h-5 flex-1 items-center justify-center rounded-full bg-background/60 px-2">
-            <span className="truncate text-xs text-muted-foreground">
+            <span className="font-mono truncate text-xs text-muted-foreground">
               code-folio.app/username
             </span>
           </div>
@@ -183,76 +118,6 @@ function CrossfadeMockup({ contentHeightClass, wrapperClassName }) {
         {PREVIEWS[activeIndex].alt}
       </p>
     </div>
-  );
-}
-
-function LandingFooter() {
-  return (
-    <footer className="border-t py-12">
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="flex flex-col gap-8 md:flex-row">
-          <div className="flex-1 space-y-2">
-            <Link className="flex w-fit items-center space-x-2" to="/">
-              <img
-                src="/favicon-light.svg"
-                className="h-6 w-6 dark:hidden"
-                alt=""
-              />
-              <img
-                src="/favicon-dark.svg"
-                className="hidden h-6 w-6 dark:block"
-                alt=""
-              />
-              <span className="font-bold">Codefolio</span>
-            </Link>
-            <p className="text-sm text-muted-foreground">
-              Developer portfolio generator, powered by GitHub.
-            </p>
-          </div>
-
-          <div className="flex flex-1 flex-col items-start md:items-center md:text-center">
-            <nav className="flex flex-wrap gap-6">
-              <Link
-                to="/"
-                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-              >
-                Home
-              </Link>
-              <Link
-                to="/showcase"
-                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-              >
-                Showcase
-              </Link>
-              <a
-                href={GITHUB_REPO_URL}
-                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                GitHub
-              </a>
-            </nav>
-          </div>
-
-          <div className="flex flex-1 flex-col items-start md:items-end md:text-right">
-            <p className="text-sm text-muted-foreground">
-              Built by{" "}
-              <Link
-                to={BUILDER_PORTFOLIO_PATH}
-                className="text-sm font-medium text-foreground hover:underline"
-              >
-                Nedim Hodžić
-              </Link>
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-8 border-t pt-8 text-center">
-          <p className="text-xs text-muted-foreground">© 2026 Codefolio</p>
-        </div>
-      </div>
-    </footer>
   );
 }
 
@@ -285,7 +150,9 @@ export default function LandingPage() {
             <div className="grid min-h-0 grid-cols-1 items-center gap-12 md:grid-cols-12 md:gap-10 lg:gap-14">
               <div className="max-w-xl space-y-6 md:col-span-7">
                 <div style={motionStyle(showHero, reducedMotion, 0)}>
-                  <Badge>Free to use · No coding required</Badge>
+                  <Badge className="font-mono text-xs">
+                    Free to use · No coding required
+                  </Badge>
                 </div>
 
                 <h1
@@ -306,20 +173,29 @@ export default function LandingPage() {
 
                 <div style={motionStyle(showHero, reducedMotion, 300)}>
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <Button asChild size="lg">
+                    <Button
+                      asChild
+                      size="lg"
+                      className="transition-shadow duration-200 hover:shadow-md"
+                    >
                       <a href={githubAuthUrl}>
                         <GitHubIcon className="mr-2 h-5 w-5" />
                         Get started with GitHub
                       </a>
                     </Button>
-                    <Button asChild variant="outline" size="lg">
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="lg"
+                      className="transition-shadow duration-200 hover:shadow-md"
+                    >
                       <Link to="/showcase">Browse showcase</Link>
                     </Button>
                   </div>
                 </div>
 
                 <p
-                  className="text-sm text-muted-foreground"
+                  className="font-mono text-sm text-muted-foreground"
                   style={motionStyle(showHero, reducedMotion, 400)}
                 >
                   Built for developers who'd rather ship than design.
@@ -352,7 +228,7 @@ export default function LandingPage() {
         <section className="px-6 pt-24 pb-32 md:pt-32">
           <div className="mx-auto max-w-6xl">
             <div ref={howRef} style={motionStyle(howInView, reducedMotion)}>
-              <p className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+              <p className="font-mono text-xs font-semibold tracking-widest text-muted-foreground uppercase">
                 How it works
               </p>
               <h2 className="mt-3 text-3xl font-bold md:text-4xl">
@@ -365,10 +241,21 @@ export default function LandingPage() {
             </div>
 
             <div className="mt-16 grid grid-cols-1 gap-12 md:grid-cols-3">
-              <div ref={step1Ref} style={motionStyle(step1InView, reducedMotion, 0)}>
-                <span className="text-5xl font-bold text-muted-foreground/20">
-                  {HOW_IT_WORKS_STEPS[0].number}
-                </span>
+              <div
+                ref={step1Ref}
+                style={motionStyle(step1InView, reducedMotion, 0)}
+              >
+                <div className="relative">
+                  <span
+                    aria-hidden
+                    className="absolute -top-4 -left-1 text-8xl font-mono text-muted-foreground/5 select-none pointer-events-none"
+                  >
+                    {HOW_IT_WORKS_STEPS[0].number}
+                  </span>
+                  <span className="relative font-mono text-5xl font-bold text-muted-foreground/20">
+                    {HOW_IT_WORKS_STEPS[0].number}
+                  </span>
+                </div>
                 <h3 className="mt-4 text-lg font-semibold">
                   {HOW_IT_WORKS_STEPS[0].heading}
                 </h3>
@@ -376,10 +263,21 @@ export default function LandingPage() {
                   {HOW_IT_WORKS_STEPS[0].body}
                 </p>
               </div>
-              <div ref={step2Ref} style={motionStyle(step2InView, reducedMotion, 150)}>
-                <span className="text-5xl font-bold text-muted-foreground/20">
-                  {HOW_IT_WORKS_STEPS[1].number}
-                </span>
+              <div
+                ref={step2Ref}
+                style={motionStyle(step2InView, reducedMotion, 150)}
+              >
+                <div className="relative">
+                  <span
+                    aria-hidden
+                    className="absolute -top-4 -left-1 text-8xl font-mono text-muted-foreground/5 select-none pointer-events-none"
+                  >
+                    {HOW_IT_WORKS_STEPS[1].number}
+                  </span>
+                  <span className="relative font-mono text-5xl font-bold text-muted-foreground/20">
+                    {HOW_IT_WORKS_STEPS[1].number}
+                  </span>
+                </div>
                 <h3 className="mt-4 text-lg font-semibold">
                   {HOW_IT_WORKS_STEPS[1].heading}
                 </h3>
@@ -387,10 +285,21 @@ export default function LandingPage() {
                   {HOW_IT_WORKS_STEPS[1].body}
                 </p>
               </div>
-              <div ref={step3Ref} style={motionStyle(step3InView, reducedMotion, 300)}>
-                <span className="text-5xl font-bold text-muted-foreground/20">
-                  {HOW_IT_WORKS_STEPS[2].number}
-                </span>
+              <div
+                ref={step3Ref}
+                style={motionStyle(step3InView, reducedMotion, 300)}
+              >
+                <div className="relative">
+                  <span
+                    aria-hidden
+                    className="absolute -top-4 -left-1 text-8xl font-mono text-muted-foreground/5 select-none pointer-events-none"
+                  >
+                    {HOW_IT_WORKS_STEPS[2].number}
+                  </span>
+                  <span className="relative font-mono text-5xl font-bold text-muted-foreground/20">
+                    {HOW_IT_WORKS_STEPS[2].number}
+                  </span>
+                </div>
                 <h3 className="mt-4 text-lg font-semibold">
                   {HOW_IT_WORKS_STEPS[2].heading}
                 </h3>

@@ -44,7 +44,7 @@ export default function LoginPage() {
           className="hidden h-9 w-auto shrink-0 dark:block"
           alt="Codefolio"
         />
-        <span className="text-xl font-bold tracking-tight">Codefolio</span>
+        <span className="font-mono text-xl font-bold tracking-tight">Codefolio</span>
       </Link>
 
       <Card className="w-full max-w-md border border-border/60 p-8 shadow-2xl">
