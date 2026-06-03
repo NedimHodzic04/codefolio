@@ -167,7 +167,7 @@ export default function ModernLayout({ user, projects, education, theme = "light
   );
 
   return (
-    <div className={`theme-${theme} min-h-screen bg-background`}>
+    <div className={`theme-${theme} min-h-screen bg-background pb-20`}>
       {/* Desktop: Fixed Sidebar */}
       <aside className="hidden lg:block fixed left-0 top-0 h-screen w-[280px] bg-card border-r border-primary/20 overflow-y-auto p-6">
         <SidebarContent />

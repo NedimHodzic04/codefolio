@@ -140,9 +140,9 @@ export default function PortfolioPage() {
         theme={portfolioUser.theme || "light"}
       />
 
-      {/* Owner edit control — top-right so it does not overlap layout scroll buttons */}
-      {isOwner && (
-        <div className="fixed top-4 right-4 z-50">
+      {/* Bottom controls — fixed, z-40 sits below layout navbars */}
+      <div className="fixed bottom-4 left-4 z-40 flex flex-col gap-2 items-start">
+        {isOwner && (
           <Button
             onClick={() => navigate("/dashboard")}
             className="shadow-lg"
@@ -152,11 +152,7 @@ export default function PortfolioPage() {
             <Pencil1Icon className="w-4 h-4 mr-2" />
             Edit Portfolio
           </Button>
-        </div>
-      )}
-
-      {/* Bottom-right controls */}
-      <div className="fixed bottom-4 left-4 z-50 flex flex-col gap-2 items-start">
+        )}
         {currentUser?.isAdmin && (
           <Button
             className="shadow-lg"

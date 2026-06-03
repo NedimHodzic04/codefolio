@@ -8,8 +8,8 @@ export default function LandingFooter() {
     <footer className="border-t py-12">
       <div className="mx-auto max-w-6xl px-6">
         <div className="flex flex-col gap-8 md:flex-row">
-          <div className="flex-1 space-y-2">
-            <Link className="flex w-fit items-center space-x-2" to="/">
+          <div className="flex-1 space-y-2 text-center md:text-left">
+            <Link className="flex w-fit items-center space-x-2 mx-auto md:mx-0" to="/">
               <img
                 src="/favicon-light.svg"
                 className="h-6 w-6 dark:hidden"
@@ -27,7 +27,7 @@ export default function LandingFooter() {
             </p>
           </div>
 
-          <div className="flex flex-1 flex-col items-start md:items-center md:text-center">
+          <div className="flex flex-1 flex-col items-center md:items-center md:text-center">
             <nav className="flex flex-wrap gap-6">
               <Link
                 to="/"
@@ -58,7 +58,7 @@ export default function LandingFooter() {
             </nav>
           </div>
 
-          <div className="flex flex-1 flex-col items-start md:items-end md:text-right">
+          <div className="flex flex-1 flex-col items-center md:items-end md:text-right">
             <p className="text-sm text-muted-foreground">
               Built by{" "}
               <Link
